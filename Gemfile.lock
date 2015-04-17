@@ -1,0 +1,23 @@
+GIT
+  remote: https://github.com/paypal/Illuminator.git
+  revision: b26bf789e19a1c70eb9a429ea6b94d9d83857214
+  specs:
+    illuminator (0.1.0)
+      colorize
+      dnssd
+      json
+      xcpretty
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    colorize (0.7.5)
+    dnssd (3.0.1)
+    json (1.8.2)
+    xcpretty (0.1.9)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  illuminator!
