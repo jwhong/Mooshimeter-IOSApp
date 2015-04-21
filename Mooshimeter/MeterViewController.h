@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @protocol MeterViewControllerDelegate <NSObject>
 @required
 -(void)switchToGraphView:(UIDeviceOrientation)new_o;
+-(void)updateFirmwareIfNeeded;
 @end
 
 @interface MeterViewController : UIViewController <UISplitViewControllerDelegate>

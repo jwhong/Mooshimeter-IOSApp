@@ -17,6 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***************************/
 
 #import "AppDelegate.h"
+#import "Vendor/SVProgressHUD/SVProgressHUD.h"
+
+#define SHOW_WAIT_DIALOG(MESSAGE)      [SVProgressHUD showWithStatus:MESSAGE maskType:SVProgressHUDMaskTypeClear]
 
 @implementation AppDelegate
 
@@ -64,8 +67,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     b = [UIButton buttonWithType:UIButtonTypeSystem];
     b.userInteractionEnabled = YES;
     [b addTarget:self action:@selector(settings_button_press) forControlEvents:UIControlEventTouchUpInside];
+    
+#if 1 // Uncomment if needs classic button
     [b.titleLabel setFont:[UIFont systemFontOfSize:24]];
     [b setTitle:@"\u2699" forState:UIControlStateNormal];
+#else
+    [b setFrame:CGRectMake(0, 0, 44, 30)];
+    [b setImage:[UIImage imageNamed:@"common_setting"] forState:UIControlStateNormal];
+#endif
+    
     [b setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [[b layer] setBorderWidth:2];
     [[b layer] setBorderColor:[UIColor darkGrayColor].CGColor];
@@ -87,6 +97,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+    
+    
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -140,8 +152,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     NSTimer* refresh_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self.scan_vc selector:@selector(reloadData) userInfo:nil repeats:YES];
     
     //self.scan_vc.title = @"Scan in progress...";
-    self.nav.navigationItem.title = @"Scan in progress...";
     
+    // Uncommented by Jianying Shi
+    // self.nav.navigationItem.title = @"Scan in progress...";
     [c scanForPeripheralsByInterval:5
         services:services
         options:@{CBCentralManagerScanOptionAllowDuplicatesKey : @YES}
@@ -150,7 +163,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             [refresh_timer invalidate];
             [self.scan_vc.refreshControl endRefreshing];
             [self.scan_vc reloadData];
-            self.nav.navigationItem.title = @"Pull down to scan";
+            
+            // Uncommented by Jianying Shi
+            // self.nav.navigationItem.title = @"Pull down to scan";
     }];
 }
 
@@ -202,6 +217,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
         [self.nav pushViewController:self.graph_vc animated:YES];
     }
+}
+-(void)updateFirmwareIfNeeded
+{
+    if( g_meter->oad_mode ) {
+        // We connected to a meter in OAD mode as requested previously.  Update firmware.
+        NSLog(@"Connected in OAD mode");
+        if( YES || [g_meter getAdvertisedBuildTime] != self.oad_profile->imageHeader.build_time ) {
+            NSLog(@"Starting upload");
+            
+            // Add by Jianying Shi
+            // Display updating state.
+            [SVProgressHUD showWithStatus:@"Updating firmware..." maskType : SVProgressHUDMaskTypeClear];
+            [self.oad_profile setCompletionBlock:^(NSError* error) {
+                [SVProgressHUD dismiss];
+            }];
+            
+            [self.oad_profile startUpload];
+        } else {
+            NSLog(@"We connected to an up-to-date meter in OAD mode.  Disconnecting.");
+            [g_meter.p disconnectWithCompletion:nil];
+        }
+    }
+    else if( [g_meter getAdvertisedBuildTime] < self.oad_profile->imageHeader.build_time ) {
+        // Require a firmware update!
+        NSLog(@"FIRMWARE UPDATE REQUIRED.");
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Firmware Update" message:@"This meter requires a firmware update.  This will take about a minute.  Upgrade now?" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Upgrade Now", nil];
+        [alert show];
+    }
+    
+    
 }
 
 #pragma mark ScatterViewControllerDelegate

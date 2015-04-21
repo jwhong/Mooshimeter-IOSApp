@@ -46,6 +46,12 @@
 		4ACF8AE11A0C918B00EC402B /* SmartNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ACF8AE01A0C918B00EC402B /* SmartNavigationController.m */; };
 		4ADDC5D51A882CFB00FC5093 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADDC5D41A882CFB00FC5093 /* Accelerate.framework */; };
 		4AF4D8DD1A2BCD2600622F58 /* MeterSettingsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF4D8DC1A2BCD2600622F58 /* MeterSettingsView.m */; };
+		842D9F641AE423B300ABBB89 /* LDProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 842D9F631AE423B200ABBB89 /* LDProgressView.m */; };
+		842D9F671AE424ED00ABBB89 /* UIColor+RGBValues.m in Sources */ = {isa = PBXBuildFile; fileRef = 842D9F661AE424ED00ABBB89 /* UIColor+RGBValues.m */; };
+		847121951AE61AC400035BB2 /* SVProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 847121921AE61AC400035BB2 /* SVProgressHUD.bundle */; };
+		847121961AE61AC400035BB2 /* SVProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 847121941AE61AC400035BB2 /* SVProgressHUD.m */; };
+		847A13A11AE3B94900E36E17 /* KxMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 847A139E1AE3B94900E36E17 /* KxMenu.m */; };
+		847A13A21AE3B94900E36E17 /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = 847A13A01AE3B94900E36E17 /* UIImage+ImageEffects.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -205,6 +211,17 @@
 		4ADDC5D41A882CFB00FC5093 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		4AF4D8DB1A2BCD2600622F58 /* MeterSettingsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeterSettingsView.h; sourceTree = "<group>"; };
 		4AF4D8DC1A2BCD2600622F58 /* MeterSettingsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeterSettingsView.m; sourceTree = "<group>"; };
+		842D9F621AE423B200ABBB89 /* LDProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDProgressView.h; sourceTree = "<group>"; };
+		842D9F631AE423B200ABBB89 /* LDProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDProgressView.m; sourceTree = "<group>"; };
+		842D9F651AE424ED00ABBB89 /* UIColor+RGBValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+RGBValues.h"; sourceTree = "<group>"; };
+		842D9F661AE424ED00ABBB89 /* UIColor+RGBValues.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+RGBValues.m"; sourceTree = "<group>"; };
+		847121921AE61AC400035BB2 /* SVProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SVProgressHUD.bundle; sourceTree = "<group>"; };
+		847121931AE61AC400035BB2 /* SVProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVProgressHUD.h; sourceTree = "<group>"; };
+		847121941AE61AC400035BB2 /* SVProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVProgressHUD.m; sourceTree = "<group>"; };
+		847A139D1AE3B94900E36E17 /* KxMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KxMenu.h; sourceTree = "<group>"; };
+		847A139E1AE3B94900E36E17 /* KxMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMenu.m; sourceTree = "<group>"; };
+		847A139F1AE3B94900E36E17 /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
+		847A13A01AE3B94900E36E17 /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -237,6 +254,7 @@
 		0C63852017D694DC00D3FB31 = {
 			isa = PBXGroup;
 			children = (
+				847A13941AE3B27800E36E17 /* Vendor */,
 				4A6B13C91A2EA97C000AF17B /* Default-568h@2x.png */,
 				4AA9EA1E1A12B53F0031C12B /* LGBluetooth */,
 				4ABE54171A080A8300277456 /* OAD */,
@@ -515,6 +533,51 @@
 			name = GraphSettingsView;
 			sourceTree = "<group>";
 		};
+		842D9F611AE423B200ABBB89 /* LDProgressView */ = {
+			isa = PBXGroup;
+			children = (
+				842D9F651AE424ED00ABBB89 /* UIColor+RGBValues.h */,
+				842D9F661AE424ED00ABBB89 /* UIColor+RGBValues.m */,
+				842D9F621AE423B200ABBB89 /* LDProgressView.h */,
+				842D9F631AE423B200ABBB89 /* LDProgressView.m */,
+			);
+			name = LDProgressView;
+			path = Mooshimeter/Vendor/LDProgressView;
+			sourceTree = SOURCE_ROOT;
+		};
+		847121911AE61AC400035BB2 /* SVProgressHUD */ = {
+			isa = PBXGroup;
+			children = (
+				847121921AE61AC400035BB2 /* SVProgressHUD.bundle */,
+				847121931AE61AC400035BB2 /* SVProgressHUD.h */,
+				847121941AE61AC400035BB2 /* SVProgressHUD.m */,
+			);
+			name = SVProgressHUD;
+			path = Mooshimeter/Vendor/SVProgressHUD;
+			sourceTree = SOURCE_ROOT;
+		};
+		847A13941AE3B27800E36E17 /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				847121911AE61AC400035BB2 /* SVProgressHUD */,
+				842D9F611AE423B200ABBB89 /* LDProgressView */,
+				847A139C1AE3B94900E36E17 /* KxMenu */,
+			);
+			path = Vendor;
+			sourceTree = "<group>";
+		};
+		847A139C1AE3B94900E36E17 /* KxMenu */ = {
+			isa = PBXGroup;
+			children = (
+				847A139D1AE3B94900E36E17 /* KxMenu.h */,
+				847A139E1AE3B94900E36E17 /* KxMenu.m */,
+				847A139F1AE3B94900E36E17 /* UIImage+ImageEffects.h */,
+				847A13A01AE3B94900E36E17 /* UIImage+ImageEffects.m */,
+			);
+			name = KxMenu;
+			path = Mooshimeter/Vendor/KxMenu;
+			sourceTree = SOURCE_ROOT;
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -565,11 +628,6 @@
 				LastTestingUpgradeCheck = 0610;
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = mooshim;
-				TargetAttributes = {
-					0C63852817D694DC00D3FB31 = {
-						DevelopmentTeam = S9QZRBTSZT;
-					};
-				};
 			};
 			buildConfigurationList = 0C63852417D694DC00D3FB31 /* Build configuration list for PBXProject "Mooshimeter" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -594,6 +652,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				847121951AE61AC400035BB2 /* SVProgressHUD.bundle in Resources */,
 				0C63853717D694DC00D3FB31 /* InfoPlist.strings in Resources */,
 				4A6B13CC1A2FE808000AF17B /* Images.xcassets in Resources */,
 				0C349D731885252E00B6D64F /* Default.png in Resources */,
@@ -652,13 +711,16 @@
 				4AA9EA2D1A12B54E0031C12B /* LGCentralManager.m in Sources */,
 				0C63853917D694DC00D3FB31 /* main.m in Sources */,
 				4A777EA71A09B2F2007FEEB9 /* ScanTableViewCell.m in Sources */,
+				847121961AE61AC400035BB2 /* SVProgressHUD.m in Sources */,
 				4AA9EA2C1A12B54E0031C12B /* CBUUID+StringExtraction.m in Sources */,
 				4ABE541E1A080A9000277456 /* OADProfile.m in Sources */,
 				4A5F55581AB784B100212D1D /* MooshimeterDeviceSimulator.m in Sources */,
+				847A13A21AE3B94900E36E17 /* UIImage+ImageEffects.m in Sources */,
 				4ACF8AE11A0C918B00EC402B /* SmartNavigationController.m in Sources */,
 				4AF4D8DD1A2BCD2600622F58 /* MeterSettingsView.m in Sources */,
 				0C63853D17D694DC00D3FB31 /* AppDelegate.m in Sources */,
 				0C63854C17D694DC00D3FB31 /* ScanViewController.m in Sources */,
+				842D9F641AE423B300ABBB89 /* LDProgressView.m in Sources */,
 				4AA9EA2F1A12B54E0031C12B /* LGPeripheral.m in Sources */,
 				4AA9EA2E1A12B54E0031C12B /* LGCharacteristic.m in Sources */,
 				0C63854F17D694DC00D3FB31 /* MeterViewController.m in Sources */,
@@ -666,7 +728,9 @@
 				0C78962417D7E56B00D1439E /* BLEUtility.m in Sources */,
 				4ABE54201A080A9000277456 /* OADProgressViewController.m in Sources */,
 				4AAB4A261A1052C900794EC8 /* ChannelView.m in Sources */,
+				842D9F671AE424ED00ABBB89 /* UIColor+RGBValues.m in Sources */,
 				4AC27CC31A19C0C3008CF592 /* GraphSettingsView.m in Sources */,
+				847A13A11AE3B94900E36E17 /* KxMenu.m in Sources */,
 				0C78967717DE74B800D1439E /* MooshimeterDevice.m in Sources */,
 				0C78972317E378FE00D1439E /* GraphViewController.m in Sources */,
 			);
@@ -782,6 +846,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -800,8 +865,8 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE = "0b2a1bee-e707-40a3-b180-a4b90b179733";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "0b2a1bee-e707-40a3-b180-a4b90b179733";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -814,6 +879,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -831,7 +897,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "0b2a1bee-e707-40a3-b180-a4b90b179733";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;

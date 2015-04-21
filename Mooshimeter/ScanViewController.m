@@ -19,11 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #import "ScanViewController.h"
 #import "meterViewController.h"
 
+#import "Vendor/KxMenu/KxMenu.h"
+#import "Vendor/LDProgressView/LDProgressView.h"
+
 // Uncomment if you want a simulated meter to appear in the scan list
 #define SIMULATED_METER
 
+#define kRSSIView_Tag       1000
+#define kContextMenu_Tag    2000
+
 @interface ScanViewController () {
     NSMutableArray *_objects;
+    
+    KxMenu* settingsMenu;
 }
 @end
 
@@ -46,7 +54,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     LGCentralManager* c = [LGCentralManager sharedInstance];
     self.peripherals = [c.peripherals copy];
     [self.tableView reloadData];
+    
+    // Auto - connect logics.
+    NSString* savedUUID = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUID"];
+    if( savedUUID != nil && savedUUID.length > 0 )
+    {
+        for( NSInteger i = 0; i < self.peripherals.count; i ++ )
+        {
+            LGPeripheral* p = self.peripherals[i];
+            if( [[p UUIDString] isEqualToString:savedUUID] == YES )
+            {
+                [self.delegate handleScanViewSelect:p];
+                break;
+            }
+        }
+    }
 }
+
+// by Jianying Shi.
+// Hanlder of Menu Setting
+#pragma mark - View lifecycle
 
 - (void)viewDidLoad
 {
@@ -54,15 +81,48 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     [self.tableView registerClass:[ScanTableViewCell class] forCellReuseIdentifier:@"Cell"];
     
+#if 0
     NSLog(@"Creating refresh handler...");
     UIRefreshControl *rescan_control = [[UIRefreshControl alloc] init];
     [rescan_control addTarget:self.delegate action:@selector(handleScanViewRefreshRequest) forControlEvents:UIControlEventValueChanged];
     self.refreshControl = rescan_control;
+#endif
+    
+    // Added by Jianying Shi
+    // 04/19/2015
+    
+    // -- Scan Mooshimeter button
+    // UIBarButtonItem* nav_scan_btn = [[UIBarButtonItem alloc] initWithTitle:@"Scan" style:UIBarButtonItemStylePlain target:self.delegate action:@selector(handleScanViewRefreshRequest)];
+    UIBarButtonItem* nav_scan_btn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"reloadicon"] style:UIBarButtonItemStyleBordered target:self.delegate action:@selector(handleScanViewRefreshRequest)];
+    
+#if 0
+    // -- Scan settings button
+    UIButton *menu_button = [UIButton buttonWithType:UIButtonTypeSystem];
+    menu_button.frame = CGRectMake(0.0, 0.0, 44, 30);
+    // [setting_button setTitle:@"Setting" forState : UIControlStateNormal];
+    [menu_button setImage:[UIImage imageNamed:@"menuicon"] forState:UIControlStateNormal];
+    
+    UILongPressGestureRecognizer *longpressScanSetting = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longpressScanSetting:)];
+    [menu_button addGestureRecognizer:longpressScanSetting];
+    
+    UIBarButtonItem* nav_menu_button = [[UIBarButtonItem alloc] initWithCustomView:menu_button];
+    
+    NSArray* navButtonArray = [[NSArray alloc] initWithObjects:nav_scan_btn, nav_menu_button, nil];
+    
+    if( self.navigationItem != nil )
+        self.navigationItem.leftBarButtonItems = navButtonArray;
+#endif
+    
+    if( self.navigationItem != nil )
+        self.navigationItem.leftBarButtonItem = nav_scan_btn;
 }
 
+#pragma mark - View lifecycle
 -(void)viewDidAppear:(BOOL)animated
 {
-    [self setTitle:@"Swipe down to scan"];
+    // [self setTitle:@"Swipe down to scan"]
+    // [self setTitle:@"Tap Scan Button"];
+    
     if(g_meter) {
         // If we've appeared, disconnect whatever we were talking to.
         [g_meter disconnect:nil];
@@ -126,8 +186,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     ScanTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     
+    // Add progress view to show signal strength
+    // By Jianying Shi. 04/19/2015
+    // Detect if progress view has already created.
+    LDProgressView* viewForCell = (LDProgressView*) [cell viewWithTag:indexPath.row + kRSSIView_Tag];
+    if( viewForCell == nil ) // Already create
+    {
+        CGRect cellBounds = [cell frame];
+        CGRect progressRect = CGRectMake(cellBounds.size.width * 0.70f, cellBounds.size.height / 2 - 5, cellBounds.size.width * 0.25f, 10);
+        LDProgressView* rssi_view = [[LDProgressView alloc] initWithFrame:progressRect]; //[[LDProgressView alloc] initWithProgressViewStyle : UIProgressViewStyleDefault];
+        [rssi_view setTag:indexPath.row + kRSSIView_Tag];
+        rssi_view.showText = @NO;
+        rssi_view.borderRadius = @5;
+        rssi_view.type = LDProgressSolid;
+        [cell addSubview:rssi_view];
+        
+        viewForCell = rssi_view;
+    }
+    // Set signal strength as percent.
+    // Assuming RSSI Value range -100 ~ 0
+    float percentage = (p.RSSI + 100) / 100.f;
+    viewForCell.progress = percentage;
+    
     [cell setPeripheral:p];
-
     return cell;
 }
 

@@ -18,7 +18,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "MeterViewController.h"
 
+#import "Vendor/KxMenu/KxMenu.h"
+
 dispatch_semaphore_t tmp_sem;
+
+#define kContextMenu_Tag    2000
+
+@interface MeterViewController () {
+    KxMenu* settingsMenu;
+}
+@end
 
 @implementation MeterViewController
 
@@ -77,8 +86,115 @@ dispatch_semaphore_t tmp_sem;
     
     [v addSubview:sv];
     [self.view addSubview:v];
+    
+    // By Jianying Shi
+    // -- Scan settings button
+    UIButton *menu_button = [UIButton buttonWithType:UIButtonTypeSystem];
+    menu_button.frame = CGRectMake(0.0, 0.0, 44, 30);
+    // [setting_button setTitle:@"Setting" forState : UIControlStateNormal];
+    [menu_button setImage:[UIImage imageNamed:@"menuicon"] forState:UIControlStateNormal];
+    
+    UILongPressGestureRecognizer *longpressScanSetting = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longpressScanSetting:)];
+    [menu_button addGestureRecognizer:longpressScanSetting];
+    
+    UIBarButtonItem* nav_menu_button = [[UIBarButtonItem alloc] initWithCustomView:menu_button];
+    
+    if( self.navigationItem )
+        self.navigationItem.leftBarButtonItem = nav_menu_button;
 }
 
+#pragma mark - Menu Item Press Handler
+
+- (void) longpressScanSetting : (UIBarButtonItem*) sender
+{
+    // Check if menu is currently showing.
+    UIView* existMenu = [self.view viewWithTag:kContextMenu_Tag];
+    if( existMenu != nil )
+        return;
+
+    if (!settingsMenu) {
+        
+        settingsMenu = [KxMenu new];
+        settingsMenu.menuItems = self.createSettingsMenuItems;
+        settingsMenu.blurredBackground = NO;
+        
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1) {
+            settingsMenu.blurredBackground = YES;
+        }
+        
+        settingsMenu.tintColor = [UIColor darkGrayColor];//[[UIColor whiteColor] colorWithAlphaComponent:0.5f];
+        settingsMenu.tintColor1 = [UIColor lightGrayColor];
+        
+        settingsMenu.selectedColor  = [UIColor colorWithRed:0.9f green:0 blue:0 alpha:1.f];
+        settingsMenu.selectedColor1 = [UIColor colorWithRed:0.8f green:0 blue:0 alpha:1.f];
+    }
+    
+    // Display check ID
+    NSString* savedUUID = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUID"];
+    NSString* deviceUUID = [g_meter.p UUIDString];
+    
+    KxMenuItem* checkItem = settingsMenu.menuItems[2];
+    if( savedUUID == nil || [savedUUID isEqualToString:deviceUUID] == NO )
+    {
+        checkItem.image = nil;
+    }
+    else{
+        checkItem.image = [UIImage imageNamed:@"checkicon"];
+    }
+    
+    UIView* contentView = (UIView*) [sender valueForKey:@"view"];
+    CGRect buttonRect = contentView.frame;
+    buttonRect.origin.y += buttonRect.size.height;
+    
+    [settingsMenu setTag:kContextMenu_Tag];
+    [settingsMenu showMenuInView:self.view
+                        fromRect:buttonRect];
+}
+
+- (void) firmwareUpdatePressed : (id) sender
+{
+    NSLog(@"Firmware Update");
+    
+    [self.delegate updateFirmwareIfNeeded];
+}
+
+- (void) autoConnectPressed : (id) sender
+{
+    NSLog(@"Auto connect");
+    
+    NSString* deviceUUID = [g_meter.p UUIDString];
+    if( deviceUUID )
+        [[NSUserDefaults standardUserDefaults] setObject:deviceUUID forKey:@"autoUUID"];
+}
+
+- (NSArray*) createSettingsMenuItems {
+    NSArray *menuItems =
+    @[
+      
+      [KxMenuItem menuItem:@"Setting"
+                     image:nil
+                    target:nil
+                    action:NULL],
+      
+      [KxMenuItem menuItem:@"Firmware Update"
+                     image:nil
+                    target:self
+                    action:@selector(firmwareUpdatePressed:)],
+      
+      [KxMenuItem menuItem:@"Auto Connect"
+                     image:[UIImage imageNamed:@"checkicon"]
+                    target:self
+                    action:@selector(autoConnectPressed:)],
+      ];
+    
+    KxMenuItem *first = menuItems[0];
+    first.foreColor = [UIColor colorWithRed:47/255.0f green:112/255.0f blue:225/255.0f alpha:1.0];
+    first.alignment = NSTextAlignmentCenter;
+    
+    return menuItems;
+}
+
+#pragma mark - View lifey cycle
 -(void) viewWillDisappear:(BOOL)animated {
     [self pause];
 }

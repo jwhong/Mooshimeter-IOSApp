@@ -157,6 +157,10 @@
         self.inProgramming = NO;
         dispatch_queue_t mq = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(mq, ^{
+            
+            // Call completion block here!
+            aCompletionBlock(nil);
+            
             [self completionDialog];
         });
         return;
@@ -187,9 +191,11 @@
         complete = [[UIAlertView alloc]initWithTitle:@"Firmware upgrade complete" message:@"Firmware upgrade was successfully completed, device needs to be reconnected" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [complete show];
 }
+
+-(void) setCompletionBlock : (FirmwareUpdateFinishCallback) aCallback;
+{
+    aCompletionBlock = aCallback;
+}
+
 @end
-
-
-
-
 

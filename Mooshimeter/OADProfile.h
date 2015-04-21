@@ -13,9 +13,14 @@
 
 @class BLETIOADProgressViewController;
 
+typedef void (^FirmwareUpdateFinishCallback)(NSError *error);
+
 @interface OADProfile : NSObject <UIActionSheetDelegate,UIAlertViewDelegate,CBPeripheralDelegate> {
     @public
     img_hdr_t imageHeader;
+    
+    // Add by Jianying Shi.
+    FirmwareUpdateFinishCallback    aCompletionBlock;
 }
 
 @property (strong,nonatomic) NSData *imageData;
@@ -35,6 +40,10 @@
 @property (strong,nonatomic) dispatch_semaphore_t pacer_sem;
 
 -(instancetype) init:(NSString*) filename;
+
+// Add by Jianying Shi.
+// Download new Firmware
+-(void) setCompletionBlock : (FirmwareUpdateFinishCallback) aCallback;
 
 -(void) startUpload;
 
