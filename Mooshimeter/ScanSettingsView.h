@@ -18,7 +18,20 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol ScanSettingsViewDelegate <NSObject>
+@required
+-(void)handleSendSupporMail;
+@end
+
 @interface ScanSettingsView : UIView
+{
+    
+}
+
 @property (strong,nonatomic) UILabel*           about_section;
 @property (strong,nonatomic) UIButton*          help_button;
+@property (strong,nonatomic) UIButton*          mail_button;
+
+@property (strong,nonatomic) id<ScanSettingsViewDelegate> delegate;
+
 @end

@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #import "Vendor/KxMenu/KxMenu.h"
 #import "Vendor/LDProgressView/LDProgressView.h"
 
+#import <sys/utsname.h>
+
 // Uncomment if you want a simulated meter to appear in the scan list
 #define SIMULATED_METER
 
@@ -80,38 +82,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     [super viewDidLoad];
     
     [self.tableView registerClass:[ScanTableViewCell class] forCellReuseIdentifier:@"Cell"];
-    
-#if 0
-    NSLog(@"Creating refresh handler...");
-    UIRefreshControl *rescan_control = [[UIRefreshControl alloc] init];
-    [rescan_control addTarget:self.delegate action:@selector(handleScanViewRefreshRequest) forControlEvents:UIControlEventValueChanged];
-    self.refreshControl = rescan_control;
-#endif
-    
+
     // Added by Jianying Shi
     // 04/19/2015
     
     // -- Scan Mooshimeter button
-    // UIBarButtonItem* nav_scan_btn = [[UIBarButtonItem alloc] initWithTitle:@"Scan" style:UIBarButtonItemStylePlain target:self.delegate action:@selector(handleScanViewRefreshRequest)];
     UIBarButtonItem* nav_scan_btn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"reloadicon"] style:UIBarButtonItemStyleBordered target:self.delegate action:@selector(handleScanViewRefreshRequest)];
-    
-#if 0
-    // -- Scan settings button
-    UIButton *menu_button = [UIButton buttonWithType:UIButtonTypeSystem];
-    menu_button.frame = CGRectMake(0.0, 0.0, 44, 30);
-    // [setting_button setTitle:@"Setting" forState : UIControlStateNormal];
-    [menu_button setImage:[UIImage imageNamed:@"menuicon"] forState:UIControlStateNormal];
-    
-    UILongPressGestureRecognizer *longpressScanSetting = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longpressScanSetting:)];
-    [menu_button addGestureRecognizer:longpressScanSetting];
-    
-    UIBarButtonItem* nav_menu_button = [[UIBarButtonItem alloc] initWithCustomView:menu_button];
-    
-    NSArray* navButtonArray = [[NSArray alloc] initWithObjects:nav_scan_btn, nav_menu_button, nil];
-    
-    if( self.navigationItem != nil )
-        self.navigationItem.leftBarButtonItems = navButtonArray;
-#endif
     
     if( self.navigationItem != nil )
         self.navigationItem.leftBarButtonItem = nav_scan_btn;
@@ -139,15 +115,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 -(void)settings_button_press {
     if(!self.settings_view) {
+        CGFloat fixedHeight = 250;
         CGRect frame = self.view.frame;
         frame.origin.x += .05*frame.size.width;
-        frame.origin.y += (frame.size.height - 250)/2;
+        frame.origin.y += (frame.size.height - fixedHeight)/2;
         frame.size.width  *= 0.9;
-        frame.size.height =  250;
+        frame.size.height =  fixedHeight;
         ScanSettingsView* g = [[ScanSettingsView alloc] initWithFrame:frame];
         [g setBackgroundColor:[UIColor whiteColor]];
         [g setAlpha:0.9];
         self.settings_view = g;
+        self.settings_view.delegate = self;
     }
     if([self.view.subviews containsObject:self.settings_view]) {
         [self.settings_view removeFromSuperview];
@@ -224,6 +202,115 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     NSLog(@"You clicked a meter");
     ScanTableViewCell* c = (ScanTableViewCell*)[self.tableView cellForRowAtIndexPath:indexPath];
     [self.delegate handleScanViewSelect:c.p];
+}
+
+#pragma mark - ScanSettingViewDelegate
+
+- (NSString *)platformRawString {
+    size_t size;
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+    char *machine = malloc(size);
+    sysctlbyname("hw.machine", machine, &size, NULL, 0);
+    NSString *platform = [NSString stringWithUTF8String:machine];
+    free(machine);
+    return platform;
+}
+
+- (NSString *)platformNiceString {
+    NSString *platform = [self platformRawString];
+    if ([platform isEqualToString:@"iPhone1,1"])    return @"iPhone 1G";
+    if ([platform isEqualToString:@"iPhone1,2"])    return @"iPhone 3G";
+    if ([platform isEqualToString:@"iPhone2,1"])    return @"iPhone 3GS";
+    if ([platform isEqualToString:@"iPhone3,1"])    return @"iPhone 4";
+    if ([platform isEqualToString:@"iPhone3,3"])    return @"Verizon iPhone 4";
+    if ([platform isEqualToString:@"iPhone4,1"])    return @"iPhone 4S";
+    if ([platform isEqualToString:@"iPhone5,1"])    return @"iPhone 5";
+    if ([platform isEqualToString:@"iPod1,1"])      return @"iPod Touch 1G";
+    if ([platform isEqualToString:@"iPod2,1"])      return @"iPod Touch 2G";
+    if ([platform isEqualToString:@"iPod3,1"])      return @"iPod Touch 3G";
+    if ([platform isEqualToString:@"iPod4,1"])      return @"iPod Touch 4G";
+    if ([platform isEqualToString:@"iPad1,1"])      return @"iPad 1";
+    if ([platform isEqualToString:@"iPad2,1"])      return @"iPad 2 (WiFi)";
+    if ([platform isEqualToString:@"iPad2,2"])      return @"iPad 2 (GSM)";
+    if ([platform isEqualToString:@"iPad2,3"])      return @"iPad 2 (CDMA)";
+    if ([platform isEqualToString:@"iPad3,1"])      return @"iPad 3 (WiFi)";
+    if ([platform isEqualToString:@"iPad3,2"])      return @"iPad 3 (4G,2)";
+    if ([platform isEqualToString:@"iPad3,3"])      return @"iPad 3 (4G,3)";
+    if ([platform isEqualToString:@"i386"])         return @"Simulator";
+    if ([platform isEqualToString:@"x86_64"])       return @"Simulator";
+    return platform;
+}
+
+- (void) handleSendSupporMail
+{
+    
+    if( [MFMailComposeViewController canSendMail] )
+    {
+        MFMailComposeViewController *mail = [[MFMailComposeViewController alloc] init];
+        mail.mailComposeDelegate = self;
+        [mail setSubject:@"Support Request"];
+        
+        // Compose Message Body
+        NSString *iOSVersion = [[UIDevice currentDevice] systemVersion];
+        NSString *devLabel = [self platformRawString];
+        
+        NSString* hardwareVersion = [NSString stringWithFormat:@"iOS version : %@ v%@\n", devLabel, iOSVersion];
+        NSString* bundleVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        NSString* appVersionString = [NSString stringWithFormat:@"Mooshimeter iOS App Version = %@\n", bundleVersion];
+        NSString* mailBody = [hardwareVersion stringByAppendingString:appVersionString];
+        
+        [mail setMessageBody:mailBody isHTML:NO];
+        [mail setToRecipients:@[@"hello@moosh.im"]];
+        
+        [self presentViewController:mail animated:YES completion:nil];
+    }
+    else{
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Support Mail" message:@"This device can not send mail." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+        [alert show];
+    }
+}
+
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    switch (result) {
+        case MFMailComposeResultSent:
+        {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Support Mail" message:@"Mail sent." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+            [alert show];
+            NSLog(@"You sent the email.");
+        }
+            break;
+        case MFMailComposeResultSaved:
+        {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Support Mail" message:@"Saved a draft of this email." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+            [alert show];
+            NSLog(@"You saved a draft of this email");
+        }
+            break;
+        case MFMailComposeResultCancelled:
+        {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Support Mail" message:@"Cancelled sending this email." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+            [alert show];
+            NSLog(@"You cancelled sending this email.");
+        }
+            break;
+        case MFMailComposeResultFailed:
+        {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Support Mail" message:@"An error occurred when trying to compose this email." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+            [alert show];
+            NSLog(@"Mail failed:  An error occurred when trying to compose this email");
+        }
+            break;
+        default:
+        {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Support Mail" message:@"An error occurred when trying to compose this email." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+            [alert show];
+            NSLog(@"An error occurred when trying to compose this email");
+        }
+            break;
+    }
+    
+    [self dismissViewControllerAnimated:YES completion:NULL];
 }
 
 @end

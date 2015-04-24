@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #import <UIKit/UIKit.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import <MessageUI/MessageUI.h>
+
 #import "LGPeripheral.h"
 #import "MooshimeterDevice.h"
 #import "ScanTableViewCell.h"
@@ -29,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -(void)handleScanViewSelect:(LGPeripheral*)p;
 @end
 
-@interface ScanViewController : UITableViewController <UIAlertViewDelegate>
+@interface ScanViewController : UITableViewController <UIAlertViewDelegate, MFMailComposeViewControllerDelegate, ScanSettingsViewDelegate>
 
 @property (strong,nonatomic) id<ScanViewControllerDelegate> delegate;
 @property (strong,nonatomic) NSArray* peripherals;

@@ -52,6 +52,7 @@
 		847121961AE61AC400035BB2 /* SVProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 847121941AE61AC400035BB2 /* SVProgressHUD.m */; };
 		847A13A11AE3B94900E36E17 /* KxMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 847A139E1AE3B94900E36E17 /* KxMenu.m */; };
 		847A13A21AE3B94900E36E17 /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = 847A13A01AE3B94900E36E17 /* UIImage+ImageEffects.m */; };
+		847A42241AE774FF00D4F00D /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 847A42231AE774FF00D4F00D /* MessageUI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -222,6 +223,7 @@
 		847A139E1AE3B94900E36E17 /* KxMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KxMenu.m; sourceTree = "<group>"; };
 		847A139F1AE3B94900E36E17 /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
 		847A13A01AE3B94900E36E17 /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
+		847A42231AE774FF00D4F00D /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -229,6 +231,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				847A42241AE774FF00D4F00D /* MessageUI.framework in Frameworks */,
 				4ADDC5D51A882CFB00FC5093 /* Accelerate.framework in Frameworks */,
 				4ABE54161A07FF0000277456 /* CoreGraphics.framework in Frameworks */,
 				4ABE54151A07FEE900277456 /* Foundation.framework in Frameworks */,
@@ -279,6 +282,7 @@
 		0C63852B17D694DC00D3FB31 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				847A42231AE774FF00D4F00D /* MessageUI.framework */,
 				4ADDC5D41A882CFB00FC5093 /* Accelerate.framework */,
 				0C78971F17E3762000D1439E /* QuartzCore.framework */,
 				0C7895C817D786A400D1439E /* CoreBluetooth.framework */,
