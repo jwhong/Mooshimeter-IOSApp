@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #import "Vendor/LDProgressView/LDProgressView.h"
 
 #import <sys/utsname.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 
 // Uncomment if you want a simulated meter to appear in the scan list
 #define SIMULATED_METER
@@ -85,12 +87,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     // Added by Jianying Shi
     // 04/19/2015
-    
+
     // -- Scan Mooshimeter button
     UIBarButtonItem* nav_scan_btn = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"reloadicon"] style:UIBarButtonItemStyleBordered target:self.delegate action:@selector(handleScanViewRefreshRequest)];
     
     if( self.navigationItem != nil )
         self.navigationItem.leftBarButtonItem = nav_scan_btn;
+    
+    // Long-press table-view handler
+    UILongPressGestureRecognizer *longpressScanSetting = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longpressScanSetting:)];
+    
+    longpressScanSetting.minimumPressDuration = 2.0;
+    longpressScanSetting.delegate = self;
+    
+    [self.tableView addGestureRecognizer:longpressScanSetting];
 }
 
 #pragma mark - View lifecycle
@@ -113,6 +123,121 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     return UIInterfaceOrientationMaskPortrait;
 }
 
+- (void) longpressScanSetting :(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    // Check if menu is currently showing.
+    UIView* existMenu = [self.view viewWithTag:kContextMenu_Tag];
+    if( existMenu != nil )
+        return;
+    
+    if (!settingsMenu) {
+        
+        settingsMenu = [KxMenu new];
+        settingsMenu.menuItems = self.createSettingsMenuItems;
+        settingsMenu.blurredBackground = NO;
+        
+        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1) {
+            settingsMenu.blurredBackground = YES;
+        }
+        
+        settingsMenu.tintColor = [UIColor darkGrayColor];//[[UIColor whiteColor] colorWithAlphaComponent:0.5f];
+        settingsMenu.tintColor1 = [UIColor lightGrayColor];
+        
+        settingsMenu.selectedColor  = [UIColor colorWithRed:0.9f green:0 blue:0 alpha:1.f];
+        settingsMenu.selectedColor1 = [UIColor colorWithRed:0.8f green:0 blue:0 alpha:1.f];
+    }
+    
+    // Display check ID
+#if 0
+    NSString* savedUUID = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUID"];
+    NSString* deviceUUID = [g_meter.p UUIDString];
+    
+    KxMenuItem* checkItem = settingsMenu.menuItems[2];
+    if( savedUUID == nil || [savedUUID isEqualToString:deviceUUID] == NO )
+    {
+        checkItem.image = nil;
+    }
+    else{
+        checkItem.image = [UIImage imageNamed:@"checkicon"];
+    }
+#endif
+    
+    // Check tapped table view cell
+    CGPoint p = [gestureRecognizer locationInView:self.tableView];
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
+    if (indexPath == nil) {
+        NSLog(@"long press on table view but not on a row");
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        
+        // UITableViewCell* cell = [self.tableView cellForRowAtIndexPath:indexPath];
+        // CGRect buttonRect = cell.frame;
+        
+        // Adjust button rect origin
+        // buttonRect.origin = p;
+        // buttonRect.origin.y += buttonRect.size.height;
+        
+        CGRect boundRect = CGRectMake(p.x, p.y, 5, 5);
+        boundRect.origin.y += 64;
+        
+        [settingsMenu setTag:kContextMenu_Tag];
+        [settingsMenu showMenuInView:self.tableView
+                            fromRect:boundRect];
+    } else {
+        NSLog(@"gestureRecognizer.state = %d", gestureRecognizer.state);
+    }
+}
+
+
+- (NSArray*) createSettingsMenuItems {
+    NSArray *menuItems =
+    @[
+      
+      [KxMenuItem menuItem:@"Setting"
+                     image:nil
+                    target:nil
+                    action:NULL],
+      
+      [KxMenuItem menuItem:@"Firmware Update"
+                     image:nil
+                    target:self
+                    action:@selector(firmwareUpdatePressed:)],
+      
+      [KxMenuItem menuItem:@"Auto Connect"
+                     image:[UIImage imageNamed:@"checkicon"]
+                    target:self
+                    action:@selector(autoConnectPressed:)],
+      ];
+    
+    KxMenuItem *first = menuItems[0];
+    first.foreColor = [UIColor colorWithRed:47/255.0f green:112/255.0f blue:225/255.0f alpha:1.0];
+    first.alignment = NSTextAlignmentCenter;
+    
+    return menuItems;
+}
+
+#pragma mark - Menu Item Press Handler
+
+- (void) firmwareUpdatePressed : (id) sender
+{
+    NSLog(@"Firmware Update");
+    
+#if 0
+    [self.delegate updateFirmwareIfNeeded];
+#endif
+}
+
+- (void) autoConnectPressed : (id) sender
+{
+    NSLog(@"Auto connect");
+    
+#if 0
+    NSString* deviceUUID = [g_meter.p UUIDString];
+    if( deviceUUID )
+        [[NSUserDefaults standardUserDefaults] setObject:deviceUUID forKey:@"autoUUID"];
+#endif
+    
+}
+
 -(void)settings_button_press {
     if(!self.settings_view) {
         CGFloat fixedHeight = 250;
@@ -122,8 +247,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         frame.size.width  *= 0.9;
         frame.size.height =  fixedHeight;
         ScanSettingsView* g = [[ScanSettingsView alloc] initWithFrame:frame];
-        [g setBackgroundColor:[UIColor whiteColor]];
+        [g setBackgroundColor:[UIColor darkGrayColor]];
         [g setAlpha:0.9];
+        
+        // Make round rect of settings view
+        g.layer.cornerRadius = 25;
+        g.layer.masksToBounds = YES;
+        
         self.settings_view = g;
         self.settings_view.delegate = self;
     }

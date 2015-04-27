@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -(void)handleScanViewSelect:(LGPeripheral*)p;
 @end
 
-@interface ScanViewController : UITableViewController <UIAlertViewDelegate, MFMailComposeViewControllerDelegate, ScanSettingsViewDelegate>
+@interface ScanViewController : UITableViewController <UIAlertViewDelegate, MFMailComposeViewControllerDelegate, ScanSettingsViewDelegate, UIGestureRecognizerDelegate>
 
 @property (strong,nonatomic) id<ScanViewControllerDelegate> delegate;
 @property (strong,nonatomic) NSArray* peripherals;
