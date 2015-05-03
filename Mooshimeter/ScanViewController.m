@@ -22,6 +22,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #import "Vendor/KxMenu/KxMenu.h"
 #import "Vendor/LDProgressView/LDProgressView.h"
 
+// Bar chart
+// Jianying Shi. 05/02/2015
+#import "Vendor/MPPlot/MPPlot.h"
+#import "Vendor/MPPlot/MPGraphView.h"
+#import "Vendor/MPPlot/MPBarsGraphView.h"
+
 #import <sys/utsname.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -31,6 +37,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define kRSSIView_Tag       1000
 #define kContextMenu_Tag    2000
+
+#define Round(a)            (NSInteger) (a + 0.5)
 
 @interface ScanViewController () {
     NSMutableArray *_objects;
@@ -295,26 +303,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ScanTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     
     // Add progress view to show signal strength
-    // By Jianying Shi. 04/19/2015
+    // Updated by Jianying Shi. 05/02/2015
     // Detect if progress view has already created.
-    LDProgressView* viewForCell = (LDProgressView*) [cell viewWithTag:indexPath.row + kRSSIView_Tag];
-    if( viewForCell == nil ) // Already create
-    {
-        CGRect cellBounds = [cell frame];
-        CGRect progressRect = CGRectMake(cellBounds.size.width * 0.70f, cellBounds.size.height / 2 - 5, cellBounds.size.width * 0.25f, 10);
-        LDProgressView* rssi_view = [[LDProgressView alloc] initWithFrame:progressRect]; //[[LDProgressView alloc] initWithProgressViewStyle : UIProgressViewStyleDefault];
-        [rssi_view setTag:indexPath.row + kRSSIView_Tag];
-        rssi_view.showText = @NO;
-        rssi_view.borderRadius = @5;
-        rssi_view.type = LDProgressSolid;
-        [cell addSubview:rssi_view];
+    MPBarsGraphView* chartView = (MPBarsGraphView*) [cell viewWithTag:indexPath.row + kRSSIView_Tag];
+    if( chartView == nil ) { // Not yet created
         
-        viewForCell = rssi_view;
+        CGRect cellBounds = [cell frame];
+        CGRect chartRect = CGRectMake(cellBounds.size.width - 100, 10, 30, cellBounds.size.height - 20);
+        
+        chartView = [MPPlot plotWithType : MPPlotTypeBars frame : chartRect];
+        chartView.valueRanges = MPMakeGraphValuesRange(0, 100);
+        chartView.values = [[NSArray alloc] initWithObjects:@0, @0, @0, @0, @0, nil];
+        chartView.graphColor = [UIColor colorWithRed:0.120 green:0.806 blue:0.157 alpha:1.000];
+        
+        [chartView setTag:indexPath.row + kRSSIView_Tag];
+        
+        [cell addSubview : chartView];
     }
+    
     // Set signal strength as percent.
     // Assuming RSSI Value range -100 ~ 0
-    float percentage = (p.RSSI + 100) / 100.f;
-    viewForCell.progress = percentage;
+    CGFloat percentage = (p.RSSI + 100);
+    
+    NSInteger step = Round(percentage / 20.0); // 20.f = Tick
+    NSMutableArray* valueArray = [[NSMutableArray alloc] init];
+    for(NSInteger i = 0; i < 5; i ++) {
+        
+        if( i < step )
+            [valueArray addObject:@((i+1) * 20)];
+        else
+            [valueArray addObject:@0];
+    }
+    
+    chartView.values = [NSArray arrayWithArray:valueArray];
     
     [cell setPeripheral:p];
     return cell;

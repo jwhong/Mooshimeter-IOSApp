@@ -48,6 +48,12 @@
 		4AF4D8DD1A2BCD2600622F58 /* MeterSettingsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF4D8DC1A2BCD2600622F58 /* MeterSettingsView.m */; };
 		842D9F641AE423B300ABBB89 /* LDProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 842D9F631AE423B200ABBB89 /* LDProgressView.m */; };
 		842D9F671AE424ED00ABBB89 /* UIColor+RGBValues.m in Sources */ = {isa = PBXBuildFile; fileRef = 842D9F661AE424ED00ABBB89 /* UIColor+RGBValues.m */; };
+		846403F21AF5603A002C78FF /* _MPWButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 846403E71AF5603A002C78FF /* _MPWButton.m */; };
+		846403F31AF5603A002C78FF /* MPBarsGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 846403E91AF5603A002C78FF /* MPBarsGraphView.m */; };
+		846403F41AF5603A002C78FF /* MPGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 846403EB1AF5603A002C78FF /* MPGraphView.m */; };
+		846403F51AF5603A002C78FF /* MPPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = 846403ED1AF5603A002C78FF /* MPPlot.m */; };
+		846403F61AF5603A002C78FF /* UIBezierPath+curved.m in Sources */ = {isa = PBXBuildFile; fileRef = 846403EF1AF5603A002C78FF /* UIBezierPath+curved.m */; };
+		846403F71AF5603A002C78FF /* UIView+Frame.m in Sources */ = {isa = PBXBuildFile; fileRef = 846403F11AF5603A002C78FF /* UIView+Frame.m */; };
 		847121951AE61AC400035BB2 /* SVProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 847121921AE61AC400035BB2 /* SVProgressHUD.bundle */; };
 		847121961AE61AC400035BB2 /* SVProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 847121941AE61AC400035BB2 /* SVProgressHUD.m */; };
 		847A13A11AE3B94900E36E17 /* KxMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 847A139E1AE3B94900E36E17 /* KxMenu.m */; };
@@ -216,6 +222,18 @@
 		842D9F631AE423B200ABBB89 /* LDProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDProgressView.m; sourceTree = "<group>"; };
 		842D9F651AE424ED00ABBB89 /* UIColor+RGBValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+RGBValues.h"; sourceTree = "<group>"; };
 		842D9F661AE424ED00ABBB89 /* UIColor+RGBValues.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+RGBValues.m"; sourceTree = "<group>"; };
+		846403E61AF5603A002C78FF /* _MPWButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _MPWButton.h; sourceTree = "<group>"; };
+		846403E71AF5603A002C78FF /* _MPWButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = _MPWButton.m; sourceTree = "<group>"; };
+		846403E81AF5603A002C78FF /* MPBarsGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPBarsGraphView.h; sourceTree = "<group>"; };
+		846403E91AF5603A002C78FF /* MPBarsGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPBarsGraphView.m; sourceTree = "<group>"; };
+		846403EA1AF5603A002C78FF /* MPGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGraphView.h; sourceTree = "<group>"; };
+		846403EB1AF5603A002C78FF /* MPGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGraphView.m; sourceTree = "<group>"; };
+		846403EC1AF5603A002C78FF /* MPPlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPlot.h; sourceTree = "<group>"; };
+		846403ED1AF5603A002C78FF /* MPPlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPlot.m; sourceTree = "<group>"; };
+		846403EE1AF5603A002C78FF /* UIBezierPath+curved.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIBezierPath+curved.h"; sourceTree = "<group>"; };
+		846403EF1AF5603A002C78FF /* UIBezierPath+curved.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIBezierPath+curved.m"; sourceTree = "<group>"; };
+		846403F01AF5603A002C78FF /* UIView+Frame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Frame.h"; sourceTree = "<group>"; };
+		846403F11AF5603A002C78FF /* UIView+Frame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Frame.m"; sourceTree = "<group>"; };
 		847121921AE61AC400035BB2 /* SVProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SVProgressHUD.bundle; sourceTree = "<group>"; };
 		847121931AE61AC400035BB2 /* SVProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVProgressHUD.h; sourceTree = "<group>"; };
 		847121941AE61AC400035BB2 /* SVProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVProgressHUD.m; sourceTree = "<group>"; };
@@ -549,6 +567,26 @@
 			path = Mooshimeter/Vendor/LDProgressView;
 			sourceTree = SOURCE_ROOT;
 		};
+		846403E51AF5603A002C78FF /* MPPlot */ = {
+			isa = PBXGroup;
+			children = (
+				846403E61AF5603A002C78FF /* _MPWButton.h */,
+				846403E71AF5603A002C78FF /* _MPWButton.m */,
+				846403E81AF5603A002C78FF /* MPBarsGraphView.h */,
+				846403E91AF5603A002C78FF /* MPBarsGraphView.m */,
+				846403EA1AF5603A002C78FF /* MPGraphView.h */,
+				846403EB1AF5603A002C78FF /* MPGraphView.m */,
+				846403EC1AF5603A002C78FF /* MPPlot.h */,
+				846403ED1AF5603A002C78FF /* MPPlot.m */,
+				846403EE1AF5603A002C78FF /* UIBezierPath+curved.h */,
+				846403EF1AF5603A002C78FF /* UIBezierPath+curved.m */,
+				846403F01AF5603A002C78FF /* UIView+Frame.h */,
+				846403F11AF5603A002C78FF /* UIView+Frame.m */,
+			);
+			name = MPPlot;
+			path = Mooshimeter/Vendor/MPPlot;
+			sourceTree = SOURCE_ROOT;
+		};
 		847121911AE61AC400035BB2 /* SVProgressHUD */ = {
 			isa = PBXGroup;
 			children = (
@@ -563,6 +601,7 @@
 		847A13941AE3B27800E36E17 /* Vendor */ = {
 			isa = PBXGroup;
 			children = (
+				846403E51AF5603A002C78FF /* MPPlot */,
 				847121911AE61AC400035BB2 /* SVProgressHUD */,
 				842D9F611AE423B200ABBB89 /* LDProgressView */,
 				847A139C1AE3B94900E36E17 /* KxMenu */,
@@ -711,6 +750,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4AA9EA301A12B54E0031C12B /* LGService.m in Sources */,
+				846403F31AF5603A002C78FF /* MPBarsGraphView.m in Sources */,
+				846403F51AF5603A002C78FF /* MPPlot.m in Sources */,
 				4A6716D71A8AC85E000A4F52 /* ScanSettingsView.m in Sources */,
 				4AA9EA2D1A12B54E0031C12B /* LGCentralManager.m in Sources */,
 				0C63853917D694DC00D3FB31 /* main.m in Sources */,
@@ -721,11 +762,15 @@
 				4A5F55581AB784B100212D1D /* MooshimeterDeviceSimulator.m in Sources */,
 				847A13A21AE3B94900E36E17 /* UIImage+ImageEffects.m in Sources */,
 				4ACF8AE11A0C918B00EC402B /* SmartNavigationController.m in Sources */,
+				846403F41AF5603A002C78FF /* MPGraphView.m in Sources */,
 				4AF4D8DD1A2BCD2600622F58 /* MeterSettingsView.m in Sources */,
 				0C63853D17D694DC00D3FB31 /* AppDelegate.m in Sources */,
+				846403F61AF5603A002C78FF /* UIBezierPath+curved.m in Sources */,
 				0C63854C17D694DC00D3FB31 /* ScanViewController.m in Sources */,
+				846403F21AF5603A002C78FF /* _MPWButton.m in Sources */,
 				842D9F641AE423B300ABBB89 /* LDProgressView.m in Sources */,
 				4AA9EA2F1A12B54E0031C12B /* LGPeripheral.m in Sources */,
+				846403F71AF5603A002C78FF /* UIView+Frame.m in Sources */,
 				4AA9EA2E1A12B54E0031C12B /* LGCharacteristic.m in Sources */,
 				0C63854F17D694DC00D3FB31 /* MeterViewController.m in Sources */,
 				4AA9EA311A12B54E0031C12B /* LGUtils.m in Sources */,
