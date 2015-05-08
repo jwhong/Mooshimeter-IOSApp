@@ -68,19 +68,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     [self.tableView reloadData];
     
     // Auto - connect logics.
+    // Jianying Shi
+    
+#if 0
     NSString* savedUUID = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUID"];
     if( savedUUID != nil && savedUUID.length > 0 )
     {
         for( NSInteger i = 0; i < self.peripherals.count; i ++ )
         {
             LGPeripheral* p = self.peripherals[i];
-            if( [[p UUIDString] isEqualToString:savedUUID] == YES )
+            if( [[p UUIDString] isEqualToString : savedUUID] == YES )
             {
                 [self.delegate handleScanViewSelect:p];
                 break;
             }
         }
     }
+#endif
+    
 }
 
 // by Jianying Shi.
@@ -131,6 +136,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     return UIInterfaceOrientationMaskPortrait;
 }
 
+#pragma mark - Long-press menu
 - (void) longpressScanSetting :(UILongPressGestureRecognizer *)gestureRecognizer
 {
     // Check if menu is currently showing.
@@ -155,21 +161,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         settingsMenu.selectedColor1 = [UIColor colorWithRed:0.8f green:0 blue:0 alpha:1.f];
     }
     
-    // Display check ID
-#if 0
-    NSString* savedUUID = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUID"];
-    NSString* deviceUUID = [g_meter.p UUIDString];
-    
-    KxMenuItem* checkItem = settingsMenu.menuItems[2];
-    if( savedUUID == nil || [savedUUID isEqualToString:deviceUUID] == NO )
-    {
-        checkItem.image = nil;
-    }
-    else{
-        checkItem.image = [UIImage imageNamed:@"checkicon"];
-    }
-#endif
-    
     // Check tapped table view cell
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
@@ -177,19 +168,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         NSLog(@"long press on table view but not on a row");
     } else if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
         
-        // UITableViewCell* cell = [self.tableView cellForRowAtIndexPath:indexPath];
-        // CGRect buttonRect = cell.frame;
-        
-        // Adjust button rect origin
-        // buttonRect.origin = p;
-        // buttonRect.origin.y += buttonRect.size.height;
-        
+        // Display setting menu
         CGRect boundRect = CGRectMake(p.x, p.y, 5, 5);
         boundRect.origin.y += 64;
         
-        [settingsMenu setTag:kContextMenu_Tag];
+        [settingsMenu setTag : indexPath.row + kContextMenu_Tag];
         [settingsMenu showMenuInView:self.tableView
                             fromRect:boundRect];
+        
+        // Display auto-connect checked state
+        ScanTableViewCell* c = (ScanTableViewCell*)[self.tableView cellForRowAtIndexPath:indexPath];
+        LGPeripheral* peripheral = c.p;
+        
+        NSMutableArray* savedUUIDs = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUIDs"];
+        NSString* deviceUUID = [peripheral UUIDString];
+        
+        KxMenuItem* checkItem = settingsMenu.menuItems[2];
+      
+        if( savedUUIDs != nil && savedUUIDs.count > 0 )
+        {
+            for(int i = 0; i < savedUUIDs.count; i ++) {
+                if( [[savedUUIDs objectAtIndex:i] isEqualToString:deviceUUID] )
+                {
+                    checkItem.image = [UIImage imageNamed:@"checkicon"];
+                    break;
+                }
+            }
+        }
+        else {
+            checkItem.image = nil;
+        }
     } else {
         NSLog(@"gestureRecognizer.state = %d", gestureRecognizer.state);
     }
@@ -227,10 +235,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void) firmwareUpdatePressed : (id) sender
 {
+#if 0 // MARK
+    
     NSLog(@"Firmware Update");
     
-#if 0
-    [self.delegate updateFirmwareIfNeeded];
+    // By Jianying Shi. 05/02/2015
+    // First of all, connect to peripheral
+    
+    // Get selected table view cell
+    NSInteger tag = settingsMenu.tag;
+    NSIndexPath* indexPath = [NSIndexPath indexPathForRow:tag inSection:0];
+    
+    ScanTableViewCell* c = (ScanTableViewCell*)[self.tableView cellForRowAtIndexPath:indexPath];
+    [self.delegate handleScanViewSelect:c.p];
+
+    // Then upldate
+    // [self.delegate updateFirmwareIfNeeded];
 #endif
 }
 
@@ -238,11 +258,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 {
     NSLog(@"Auto connect");
     
-#if 0
     NSString* deviceUUID = [g_meter.p UUIDString];
     if( deviceUUID )
-        [[NSUserDefaults standardUserDefaults] setObject:deviceUUID forKey:@"autoUUID"];
-#endif
+    {
+        // Save current device UUID to user defaults
+        NSMutableArray* savedUUIDs = (NSMutableArray*)[[NSUserDefaults standardUserDefaults] objectForKey:@"autoUUIDs"];
+        if( savedUUIDs != nil ) // already has saved id
+            [savedUUIDs addObject:deviceUUID];
+        else {
+            savedUUIDs = [[NSMutableArray alloc] initWithObjects:deviceUUID, nil];
+        }
+            
+        [[NSUserDefaults standardUserDefaults] setObject:savedUUIDs forKey:@"autoUUIDs"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
     
 }
 
@@ -309,7 +338,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     if( chartView == nil ) { // Not yet created
         
         CGRect cellBounds = [cell frame];
-        CGRect chartRect = CGRectMake(cellBounds.size.width - 100, 10, 30, cellBounds.size.height - 20);
+        CGRect chartRect = CGRectMake(cellBounds.size.width - 80, 10, 30, cellBounds.size.height - 20);
         
         chartView = [MPPlot plotWithType : MPPlotTypeBars frame : chartRect];
         chartView.valueRanges = MPMakeGraphValuesRange(0, 100);

@@ -68,7 +68,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     b.userInteractionEnabled = YES;
     [b addTarget:self action:@selector(settings_button_press) forControlEvents:UIControlEventTouchUpInside];
     
-#if 1 // Uncomment if needs classic button
+#if 1 // Commented if needs classic button
     [b.titleLabel setFont:[UIFont systemFontOfSize:24]];
     [b setTitle:@"\u2699" forState:UIControlStateNormal];
 #else
@@ -147,7 +147,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     NSArray* services = [NSArray arrayWithObjects:[BLEUtility expandToMooshimUUID:METER_SERVICE_UUID], [BLEUtility expandToMooshimUUID:OAD_SERVICE_UUID], [CBUUID UUIDWithData:[NSData dataWithBytes:&tmp length:2]], nil];
     NSLog(@"Refresh requested");
     
-    [self.scan_vc.refreshControl beginRefreshing];
+    // [self.scan_vc.refreshControl beginRefreshing];
     
     NSTimer* refresh_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self.scan_vc selector:@selector(reloadData) userInfo:nil repeats:YES];
     
@@ -202,7 +202,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             
             [g_meter connect];
             [self.scan_vc reloadData];
-            break;}
+            break;
+        }
     }
 }
 
@@ -220,6 +221,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 -(void)updateFirmwareIfNeeded
 {
+    if ( g_meter == nil )
+        return;
+    
     if( g_meter->oad_mode ) {
         // We connected to a meter in OAD mode as requested previously.  Update firmware.
         NSLog(@"Connected in OAD mode");
@@ -245,8 +249,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Firmware Update" message:@"This meter requires a firmware update.  This will take about a minute.  Upgrade now?" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Upgrade Now", nil];
         [alert show];
     }
-    
-    
 }
 
 #pragma mark ScatterViewControllerDelegate
@@ -307,7 +309,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     [self.bat_label setText:@""];
     [self.rssi_label setText:@""];
     [NSTimer cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateRSSI) object:nil];
-    [self.nav popToViewController:self.scan_vc animated:YES];
+    
+    // [self.nav popToViewController:self.scan_vc animated:YES];
+    
     [self.scan_vc reloadData];
     g_meter = nil;
 }

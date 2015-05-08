@@ -86,6 +86,10 @@ dispatch_semaphore_t tmp_sem;
     
     [v addSubview:sv];
     [self.view addSubview:v];
+    
+    // Trying to customized back button
+    UIBarButtonItem* back_item = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(backToScanView:)];
+    self.navigationItem.leftBarButtonItem = back_item;
 }
 
 - (void) backToScanView : (id) sender

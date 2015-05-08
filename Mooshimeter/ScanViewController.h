@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 @required
 -(void)handleScanViewRefreshRequest;
 -(void)handleScanViewSelect:(LGPeripheral*)p;
+-(void)updateFirmwareIfNeeded;
 @end
 
 @interface ScanViewController : UITableViewController <UIAlertViewDelegate, MFMailComposeViewControllerDelegate, ScanSettingsViewDelegate, UIGestureRecognizerDelegate>

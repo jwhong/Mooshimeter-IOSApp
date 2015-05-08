@@ -77,11 +77,18 @@ MooshimeterDevice* g_meter;
 -(void)connect {
     self.chars = [[NSMutableDictionary alloc] init];
     
-    [self.p connectWithTimeout:5 completion:^(NSError *error) {
+    [self.p connectWithTimeout : 30 completion:^(NSError *error) {
         NSLog(@"Discovering services");
+        
         [self.p discoverServicesWithCompletion:^(NSArray *services, NSError *error) {
             for (LGService *service in services) {
-                if([service.UUIDString isEqualToString:[BLEUtility expandToMooshimUUIDString:METER_SERVICE_UUID]]) {
+                
+                NSString* meterServiceUUID = [BLEUtility expandToMooshimUUIDString:METER_SERVICE_UUID];
+                
+                //NSLog(@"service UUID = %@", service.UUIDString);
+                //NSLog(@"meterSevice UUID = %@", service.UUIDString);
+                
+                if([service.UUIDString isEqualToString : meterServiceUUID]) {
                     NSLog(@"METER SERVICE FOUND. Discovering characteristics.");
                     self->oad_mode = NO;
                     [service discoverCharacteristicsWithCompletion:^(NSArray *characteristics, NSError *error) {

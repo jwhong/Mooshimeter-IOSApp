@@ -107,9 +107,9 @@ NSString * const kConnectionMissingErrorMessage = @"BLE Device is not connected"
                 completion:(LGPeripheralConnectionCallback)aCallback
 {
     [self connectWithCompletion:aCallback];
-    [self performSelector:@selector(connectionWatchDogFired)
-               withObject:nil
-               afterDelay:aWatchDogInterval];
+    [self performSelector : @selector(connectionWatchDogFired)
+               withObject : nil
+               afterDelay : aWatchDogInterval];
 }
 
 - (void)disconnectWithCompletion:(LGPeripheralConnectionCallback)aCallback
