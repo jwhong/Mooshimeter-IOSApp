@@ -90,6 +90,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     self.oad_profile.navCtrl = self.nav;
     
     [self.window setRootViewController:self.nav];
+    
+    // By Jianying Shi.
+    // Install Key Window
+    [self.window makeKeyAndVisible];
+    self.mlastConnectedUDID = nil;
+    
     return YES;
 }
 							
@@ -98,13 +104,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     
-    
+    // By Jianying Shi
+    // 05/08/2015
+    if( g_meter ) // It means, current mooshim device is connected
+    {
+        // Save current peripheral UUID to dictionary
+        self.mlastConnectedUDID = g_meter.p.UUIDString;
+        
+        // Trying to disconnect.
+        [g_meter disconnect:nil];
+    }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -115,6 +130,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    
+    // By Jianying Shi
+    // 05/08/2015
+    if( self.mlastConnectedUDID != nil && self.mlastConnectedUDID.length > 0 ) // Previously background disconnect
+    {
+        // Refresh Device List &&
+        // Display Please wait dialg
+        [SVProgressHUD showWithStatus:@"Restoring connection state, Please wait for a second."];
+        
+        [self handleScanViewRefreshRequest];
+    }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -147,14 +173,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     NSArray* services = [NSArray arrayWithObjects:[BLEUtility expandToMooshimUUID:METER_SERVICE_UUID], [BLEUtility expandToMooshimUUID:OAD_SERVICE_UUID], [CBUUID UUIDWithData:[NSData dataWithBytes:&tmp length:2]], nil];
     NSLog(@"Refresh requested");
     
-    // [self.scan_vc.refreshControl beginRefreshing];
-    
     NSTimer* refresh_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self.scan_vc selector:@selector(reloadData) userInfo:nil repeats:YES];
     
-    //self.scan_vc.title = @"Scan in progress...";
-    
-    // Uncommented by Jianying Shi
-    // self.nav.navigationItem.title = @"Scan in progress...";
     [c scanForPeripheralsByInterval:5
         services:services
         options:@{CBCentralManagerScanOptionAllowDuplicatesKey : @YES}
@@ -163,19 +183,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             [refresh_timer invalidate];
             [self.scan_vc.refreshControl endRefreshing];
             [self.scan_vc reloadData];
-            
-            // Uncommented by Jianying Shi
-            // self.nav.navigationItem.title = @"Pull down to scan";
     }];
 }
 
 #pragma mark ScanViewDelegate
 
 -(void)handleScanViewRefreshRequest {
+    
+    // By Jianying Shi.
+    // Check if application is in background, no need to check
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    if( state == UIApplicationStateBackground || state == UIApplicationStateInactive )
+    {
+        //Do checking here.
+        return;
+    }
+    
     [self scanForMeters];
 }
 
 -(void)handleScanViewSelect:(LGPeripheral*)p {
+    
     switch( p.cbPeripheral.state ) {
         case CBPeripheralStateConnected:{
             // We selected one that's already connected, disconnect
@@ -201,7 +229,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             }
             
             [g_meter connect];
-            [self.scan_vc reloadData];
+            
+            // [self.scan_vc reloadData];
+            
             break;
         }
     }
@@ -267,6 +297,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma mark MooshimeterDeviceDelegate
 
 -(void)finishedMeterSetup {
+    
+    // Delete SVProgressHUD, if needed.
+    [SVProgressHUD dismiss];
+    
     NSLog(@"Finished meter setup");
     [self.scan_vc reloadData];
     if( g_meter->oad_mode ) {
@@ -310,9 +344,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     [self.rssi_label setText:@""];
     [NSTimer cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateRSSI) object:nil];
     
-    // [self.nav popToViewController:self.scan_vc animated:YES];
+    // By Jianying Shi
+    // Setup Portrait Orientation
+    NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationPortrait];
+    [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
+
+    // Check if current view controller is scan view controller
+    // if ( [self.nav.viewControllers[0] isKindOfClass:[ScanSettingsView class]] == false ) // Current view is ScanView, not need to pop
+        [self.nav popToViewController:self.scan_vc animated:YES];
     
-    [self.scan_vc reloadData];
+    // No need??? Jianying Shi
+    // [self.scan_vc reloadData];
+    
     g_meter = nil;
 }
 
@@ -357,6 +400,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             }];
         }];
     }
+}
+
+#pragma mark TopViewController Judge Part
+- (UIViewController*) topViewController {
+    
+    return [self topViewController : self.window.rootViewController];
+}
+
+- (UIViewController*) topViewController : (UIViewController*) rootViewController {
+    
+    if( rootViewController.presentedViewController == nil ) {
+        return rootViewController;
+    }
+    else if( [rootViewController.presentedViewController isKindOfClass:[UINavigationController class]] )
+    {
+        UINavigationController* navController = (UINavigationController*) rootViewController.presentedViewController;
+        UIViewController* lastVC = (UIViewController*) navController.viewControllers.lastObject;
+        return [self topViewController:lastVC];
+    }
+    
+    return (UIViewController*) rootViewController.presentedViewController;
 }
 
 @end

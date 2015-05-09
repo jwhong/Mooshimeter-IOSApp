@@ -27,6 +27,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #import "Vendor/MPPlot/MPPlot.h"
 #import "Vendor/MPPlot/MPGraphView.h"
 #import "Vendor/MPPlot/MPBarsGraphView.h"
+#import "Vendor/SVProgressHUD/SVProgressHUD.h"
+
+#import "AppDelegate.h"
 
 #import <sys/utsname.h>
 #include <sys/types.h>
@@ -70,21 +73,42 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     // Auto - connect logics.
     // Jianying Shi
     
-#if 0
-    NSString* savedUUID = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUID"];
-    if( savedUUID != nil && savedUUID.length > 0 )
+    AppDelegate* delegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
+    NSString* backUUID = delegate.mlastConnectedUDID;
+    if( backUUID != nil && backUUID.length > 0 )
     {
         for( NSInteger i = 0; i < self.peripherals.count; i ++ )
         {
             LGPeripheral* p = self.peripherals[i];
-            if( [[p UUIDString] isEqualToString : savedUUID] == YES )
+            if( [[p UUIDString] isEqualToString : backUUID] == YES )
             {
+                delegate.mlastConnectedUDID = nil;
+                
                 [self.delegate handleScanViewSelect:p];
                 break;
             }
         }
     }
+    else
+    {
+#if 0
+        NSArray* savedUUIDs = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUIDs"];
+        if( savedUUIDs!= nil && savedUUIDs.count > 0 )
+        {
+            for( NSInteger i = 0; i < self.peripherals.count; i ++ )
+            {
+                LGPeripheral* p = self.peripherals[i];
+                
+                if( [savedUUIDs containsObject:p.UUIDString] == YES )
+                {
+                    [self.delegate handleScanViewSelect:p];
+                    break;
+                }
+            }
+        }
 #endif
+        
+    }
     
 }
 
@@ -126,6 +150,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         // If we've appeared, disconnect whatever we were talking to.
         [g_meter disconnect:nil];
     }
+    
     // Start a new scan for meters
     [self.delegate handleScanViewRefreshRequest];
 }
@@ -139,34 +164,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma mark - Long-press menu
 - (void) longpressScanSetting :(UILongPressGestureRecognizer *)gestureRecognizer
 {
-    // Check if menu is currently showing.
-    UIView* existMenu = [self.view viewWithTag:kContextMenu_Tag];
-    if( existMenu != nil )
-        return;
-    
-    if (!settingsMenu) {
-        
-        settingsMenu = [KxMenu new];
-        settingsMenu.menuItems = self.createSettingsMenuItems;
-        settingsMenu.blurredBackground = NO;
-        
-        if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1) {
-            settingsMenu.blurredBackground = YES;
-        }
-        
-        settingsMenu.tintColor = [UIColor darkGrayColor];//[[UIColor whiteColor] colorWithAlphaComponent:0.5f];
-        settingsMenu.tintColor1 = [UIColor lightGrayColor];
-        
-        settingsMenu.selectedColor  = [UIColor colorWithRed:0.9f green:0 blue:0 alpha:1.f];
-        settingsMenu.selectedColor1 = [UIColor colorWithRed:0.8f green:0 blue:0 alpha:1.f];
-    }
-    
     // Check tapped table view cell
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
     if (indexPath == nil) {
         NSLog(@"long press on table view but not on a row");
     } else if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        
+        // Display auto-connect checked state
+        ScanTableViewCell* c = (ScanTableViewCell*)[self.tableView cellForRowAtIndexPath:indexPath];
+        LGPeripheral* peripheral = c.p;
+        
+        NSMutableArray* savedUUIDs = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUIDs"];
+        NSString* deviceUUID = [peripheral UUIDString];
+        
+        BOOL bChecked = NO;
+        if( savedUUIDs != nil && savedUUIDs.count > 0 )
+        {
+            if ( [savedUUIDs containsObject:deviceUUID] == true )
+                bChecked = YES;
+        }
+
+        // if (!settingsMenu)
+        {
+            
+            settingsMenu = [KxMenu new];
+            settingsMenu.menuItems = [self createSettingsMenuItems:bChecked];
+            settingsMenu.blurredBackground = NO;
+            
+            if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1) {
+                settingsMenu.blurredBackground = YES;
+            }
+            
+            settingsMenu.tintColor = [UIColor darkGrayColor];//[[UIColor whiteColor] colorWithAlphaComponent:0.5f];
+            settingsMenu.tintColor1 = [UIColor lightGrayColor];
+            
+            settingsMenu.selectedColor  = [UIColor colorWithRed:0.9f green:0 blue:0 alpha:1.f];
+            settingsMenu.selectedColor1 = [UIColor colorWithRed:0.8f green:0 blue:0 alpha:1.f];
+        }
+
         
         // Display setting menu
         CGRect boundRect = CGRectMake(p.x, p.y, 5, 5);
@@ -176,35 +212,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         [settingsMenu showMenuInView:self.tableView
                             fromRect:boundRect];
         
-        // Display auto-connect checked state
-        ScanTableViewCell* c = (ScanTableViewCell*)[self.tableView cellForRowAtIndexPath:indexPath];
-        LGPeripheral* peripheral = c.p;
-        
-        NSMutableArray* savedUUIDs = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUIDs"];
-        NSString* deviceUUID = [peripheral UUIDString];
-        
-        KxMenuItem* checkItem = settingsMenu.menuItems[2];
-      
-        if( savedUUIDs != nil && savedUUIDs.count > 0 )
-        {
-            for(int i = 0; i < savedUUIDs.count; i ++) {
-                if( [[savedUUIDs objectAtIndex:i] isEqualToString:deviceUUID] )
-                {
-                    checkItem.image = [UIImage imageNamed:@"checkicon"];
-                    break;
-                }
-            }
-        }
-        else {
-            checkItem.image = nil;
-        }
     } else {
         NSLog(@"gestureRecognizer.state = %d", gestureRecognizer.state);
     }
 }
 
 
-- (NSArray*) createSettingsMenuItems {
+- (NSArray*) createSettingsMenuItems : (BOOL) bChecked {
+    
+    KxMenuItem* checkItem = nil;
+    if( bChecked )
+        checkItem = [KxMenuItem menuItem:@"Auto Connect" image:[UIImage imageNamed:@"checkicon"] target:self action:@selector(autoConnectPressed:)];
+    else
+        checkItem = [KxMenuItem menuItem:@"Auto Connect" image:nil target:self action:@selector(autoConnectPressed:)];
+    
     NSArray *menuItems =
     @[
       
@@ -218,10 +239,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     target:self
                     action:@selector(firmwareUpdatePressed:)],
       
-      [KxMenuItem menuItem:@"Auto Connect"
-                     image:[UIImage imageNamed:@"checkicon"]
-                    target:self
-                    action:@selector(autoConnectPressed:)],
+      checkItem,
       ];
     
     KxMenuItem *first = menuItems[0];
@@ -258,13 +276,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 {
     NSLog(@"Auto connect");
     
-    NSString* deviceUUID = [g_meter.p UUIDString];
+    // Get current selected peripheral
+    NSInteger selectedRow = [settingsMenu tag] - kContextMenu_Tag;
+    LGPeripheral* p = [self.peripherals objectAtIndex:selectedRow];
+    
+    NSString* deviceUUID = p.UUIDString;
     if( deviceUUID )
     {
         // Save current device UUID to user defaults
         NSMutableArray* savedUUIDs = (NSMutableArray*)[[NSUserDefaults standardUserDefaults] objectForKey:@"autoUUIDs"];
         if( savedUUIDs != nil ) // already has saved id
-            [savedUUIDs addObject:deviceUUID];
+        {
+            if( [savedUUIDs containsObject:deviceUUID] == YES ) // It means, this device already saved, but user want's to disable auto-connect
+                [savedUUIDs removeObject:deviceUUID];
+            else
+                [savedUUIDs addObject:deviceUUID];
+        }
         else {
             savedUUIDs = [[NSMutableArray alloc] initWithObjects:deviceUUID, nil];
         }

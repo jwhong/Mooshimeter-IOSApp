@@ -47,6 +47,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 -(void) viewDidAppear:(BOOL)animated {
+    
+    // By Jianying Shi.
+    // Null Check
+    
+    
     [super viewDidAppear:animated];
     self.navigationController.navigationBar.hidden = YES;
     self.config_view = nil;
@@ -79,6 +84,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 -(void)startTrendView {
+    // By Jianying Shi
+    // Null Check
+    if( g_meter == nil )
+        return;
+    
     g_meter->meter_settings.rw.calc_settings &=~(METER_CALC_SETTINGS_ONESHOT);
     g_meter->meter_settings.rw.calc_settings |= METER_CALC_SETTINGS_MEAN|METER_CALC_SETTINGS_MS;
     g_meter->meter_settings.rw.target_meter_state = METER_RUNNING;
@@ -99,6 +109,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 -(void) pause {
+    
+    // By Jianying
+    // Null check
+    if( g_meter == nil )
+    {
+        NSLog(@"Meter already disconnected, igonring request");
+        return;
+    }
+    
     self->play = NO;
     g_meter->meter_settings.rw.target_meter_state = METER_PAUSED;
     [g_meter sendMeterSettings:^(NSError *error) {
@@ -138,6 +157,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 -(void) redrawTrendView:(NSTimer*)timer {
+    
+    // By Jianying Shi
+    // Null Check
+    if( g_meter == nil )
+    {
+        NSLog(@"Invalid meter, igonoring redraw request");
+        return;
+    }
+    
     NSLog(@"Redrawing");
     CPTGraph *graph = self.hostView.hostedGraph;
     [graph reloadData];
