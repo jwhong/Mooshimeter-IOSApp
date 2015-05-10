@@ -131,6 +131,12 @@ typedef void(^LGPeripheralRSSIValueCallback)(NSNumber *RSSI, NSError *error);
  */
 @property (strong, nonatomic) NSDictionary *advertisingData;
 
+// Added by Jianying Shi
+/**
+ * Represent if current device was auto-connected in the past
+ */
+@property (nonatomic, readwrite) BOOL pastAutoConnected;
+
 #pragma mark - Public Methods -
 
 /**

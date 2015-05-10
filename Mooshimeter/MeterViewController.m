@@ -87,6 +87,7 @@ dispatch_semaphore_t tmp_sem;
     [v addSubview:sv];
     [self.view addSubview:v];
     
+    // By Jianying Shi
     // Trying to customized back button
     UIBarButtonItem* back_item = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(backToScanView:)];
     self.navigationItem.leftBarButtonItem = back_item;
@@ -94,7 +95,8 @@ dispatch_semaphore_t tmp_sem;
 
 - (void) backToScanView : (id) sender
 {
-    [self.navigationController popViewControllerAnimated:YES];
+    [g_meter disconnect:nil];
+    // [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark - View lifey cycle

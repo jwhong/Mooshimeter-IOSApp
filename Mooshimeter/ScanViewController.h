@@ -42,4 +42,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -(instancetype)initWithDelegate:(id)d;
 -(void)reloadData;
 
+-(void) performAutoConnect;
+
 @end

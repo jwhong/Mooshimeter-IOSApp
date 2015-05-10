@@ -181,8 +181,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         completion:^(NSArray *peripherals) {
             NSLog(@"Found: %d", (int)peripherals.count);
             [refresh_timer invalidate];
-            [self.scan_vc.refreshControl endRefreshing];
             [self.scan_vc reloadData];
+            // By Jianying Shi
+            // Auto-Connect
+            [self.scan_vc performAutoConnect];
     }];
 }
 
@@ -196,6 +198,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     if( state == UIApplicationStateBackground || state == UIApplicationStateInactive )
     {
         //Do checking here.
+        NSLog(@"App is background mode = %d", state);
         return;
     }
     
@@ -206,6 +209,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     switch( p.cbPeripheral.state ) {
         case CBPeripheralStateConnected:{
+            NSLog(@"Already connected, igonre connection request & disconnecting...");
             // We selected one that's already connected, disconnect
             [p disconnectWithCompletion:^(NSError *error) {
                 [self meterDisconnected];
@@ -230,8 +234,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             
             [g_meter connect];
             
+            // Commented by Jianying Shi
             // [self.scan_vc reloadData];
-            
             break;
         }
     }
@@ -302,7 +306,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     [SVProgressHUD dismiss];
     
     NSLog(@"Finished meter setup");
-    [self.scan_vc reloadData];
+    
+    // ??? Commented By Jianying Shi
+    // [self.scan_vc reloadData];
+    
     if( g_meter->oad_mode ) {
         // We connected to a meter in OAD mode as requested previously.  Update firmware.
         NSLog(@"Connected in OAD mode");
@@ -350,8 +357,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
 
     // Check if current view controller is scan view controller
-    // if ( [self.nav.viewControllers[0] isKindOfClass:[ScanSettingsView class]] == false ) // Current view is ScanView, not need to pop
-        [self.nav popToViewController:self.scan_vc animated:YES];
+    [self.nav popToViewController:self.scan_vc animated:YES];
     
     // No need??? Jianying Shi
     // [self.scan_vc reloadData];

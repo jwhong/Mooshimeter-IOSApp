@@ -83,11 +83,7 @@ MooshimeterDevice* g_meter;
         [self.p discoverServicesWithCompletion:^(NSArray *services, NSError *error) {
             for (LGService *service in services) {
                 
-                NSString* meterServiceUUID = [BLEUtility expandToMooshimUUIDString:METER_SERVICE_UUID];
-                
-                //NSLog(@"service UUID = %@", service.UUIDString);
-                //NSLog(@"meterSevice UUID = %@", service.UUIDString);
-                
+                NSString* meterServiceUUID = [BLEUtility expandToMooshimUUIDString:METER_SERVICE_UUID];                
                 if([service.UUIDString isEqualToString : meterServiceUUID]) {
                     NSLog(@"METER SERVICE FOUND. Discovering characteristics.");
                     self->oad_mode = NO;

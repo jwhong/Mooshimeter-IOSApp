@@ -43,11 +43,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define Round(a)            (NSInteger) (a + 0.5)
 
+#define kAutoConnectDictKey @"autoUUIDs"
+
 @interface ScanViewController () {
     NSMutableArray *_objects;
     
     KxMenu* settingsMenu;
 }
+
+-(BOOL) connectToPeripheral : (NSString*) uuidString withPeripherals : (NSArray*)peripheral_array;
+
 @end
 
 @implementation ScanViewController
@@ -64,52 +69,68 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     [super awakeFromNib];
 }
 
+// By Jianying Shi
+-(BOOL) connectToPeripheral : (NSString*) uuidString withPeripherals : (NSArray*)peripheral_array {
+    
+    if (uuidString == nil || [uuidString length] < 1) {
+        return false;
+    }
+    
+    if (peripheral_array == nil || peripheral_array.count < 1 ) {
+        return false;
+    }
+    
+    for( LGPeripheral* p in peripheral_array )
+    {
+        if( [[p UUIDString] isEqualToString : uuidString] == YES )
+        {
+            [self.delegate handleScanViewSelect:p];
+            return true;
+        }
+    }
+    
+    return false;
+}
+
 -(void)reloadData {
+    
     NSLog(@"Reload requested");
     LGCentralManager* c = [LGCentralManager sharedInstance];
     self.peripherals = [c.peripherals copy];
     [self.tableView reloadData];
-    
-    // Auto - connect logics.
-    // Jianying Shi
+}
+
+// By Jianying Shi
+// Auto - connect logics.
+-(void) performAutoConnect {
     
     AppDelegate* delegate = (AppDelegate*)[[UIApplication sharedApplication] delegate];
-    NSString* backUUID = delegate.mlastConnectedUDID;
-    if( backUUID != nil && backUUID.length > 0 )
-    {
-        for( NSInteger i = 0; i < self.peripherals.count; i ++ )
-        {
-            LGPeripheral* p = self.peripherals[i];
-            if( [[p UUIDString] isEqualToString : backUUID] == YES )
+    if( [self connectToPeripheral:delegate.mlastConnectedUDID withPeripherals:self.peripherals] == YES ) // Restoring connection for background
+        
+        delegate.mlastConnectedUDID = nil;
+    else {
+        
+        NSArray* savedUUIDs = [[NSUserDefaults standardUserDefaults] objectForKey : kAutoConnectDictKey];
+        if ( savedUUIDs != nil &&  savedUUIDs.count > 0 ) {
+            
+            for( LGPeripheral* p in self.peripherals )
             {
-                delegate.mlastConnectedUDID = nil;
+                NSLog(@"Trying to auto-connect");
                 
-                [self.delegate handleScanViewSelect:p];
-                break;
-            }
-        }
-    }
-    else
-    {
-#if 0
-        NSArray* savedUUIDs = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUIDs"];
-        if( savedUUIDs!= nil && savedUUIDs.count > 0 )
-        {
-            for( NSInteger i = 0; i < self.peripherals.count; i ++ )
-            {
-                LGPeripheral* p = self.peripherals[i];
-                
-                if( [savedUUIDs containsObject:p.UUIDString] == YES )
+                if( [savedUUIDs containsObject:p.UUIDString] == YES && p.cbPeripheral.state == CBPeripheralStateDisconnected && p.pastAutoConnected == NO )
                 {
+                    // Check if this device was auto-connected in the past
+                    [SVProgressHUD showWithStatus:@"Auto-connecting. Please wait for a second"];
+                    
+                    // Set Flag for Auto-Connect
+                    p.pastAutoConnected = YES;
+                    
                     [self.delegate handleScanViewSelect:p];
                     break;
                 }
             }
         }
-#endif
-        
     }
-    
 }
 
 // by Jianying Shi.
@@ -146,10 +167,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     // [self setTitle:@"Swipe down to scan"]
     // [self setTitle:@"Tap Scan Button"];
     
+#if 0
     if(g_meter) {
         // If we've appeared, disconnect whatever we were talking to.
         [g_meter disconnect:nil];
     }
+#endif
     
     // Start a new scan for meters
     [self.delegate handleScanViewRefreshRequest];
@@ -175,7 +198,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         ScanTableViewCell* c = (ScanTableViewCell*)[self.tableView cellForRowAtIndexPath:indexPath];
         LGPeripheral* peripheral = c.p;
         
-        NSMutableArray* savedUUIDs = [[NSUserDefaults standardUserDefaults] objectForKey : @"autoUUIDs"];
+        NSMutableArray* savedUUIDs = [[NSUserDefaults standardUserDefaults] objectForKey : kAutoConnectDictKey];
         NSString* deviceUUID = [peripheral UUIDString];
         
         BOOL bChecked = NO;
@@ -284,19 +307,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     if( deviceUUID )
     {
         // Save current device UUID to user defaults
-        NSMutableArray* savedUUIDs = (NSMutableArray*)[[NSUserDefaults standardUserDefaults] objectForKey:@"autoUUIDs"];
+        NSMutableArray* savedUUIDs = (NSMutableArray*)[[NSUserDefaults standardUserDefaults] objectForKey:kAutoConnectDictKey];
+        
         if( savedUUIDs != nil ) // already has saved id
         {
-            if( [savedUUIDs containsObject:deviceUUID] == YES ) // It means, this device already saved, but user want's to disable auto-connect
-                [savedUUIDs removeObject:deviceUUID];
+            NSMutableArray* mutaleArray = [NSMutableArray arrayWithArray:savedUUIDs];
+            
+            if( [mutaleArray containsObject:deviceUUID] == YES ) // It means, this device already saved, but user want's to disable auto-connect
+                [mutaleArray removeObject:deviceUUID];
             else
-                [savedUUIDs addObject:deviceUUID];
+                [mutaleArray addObject:deviceUUID];
+            
+            savedUUIDs = mutaleArray;
         }
         else {
             savedUUIDs = [[NSMutableArray alloc] initWithObjects:deviceUUID, nil];
         }
             
-        [[NSUserDefaults standardUserDefaults] setObject:savedUUIDs forKey:@"autoUUIDs"];
+        [[NSUserDefaults standardUserDefaults] setObject:savedUUIDs forKey:kAutoConnectDictKey];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
     
