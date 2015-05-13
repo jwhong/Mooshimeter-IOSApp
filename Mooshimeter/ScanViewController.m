@@ -155,7 +155,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     // Long-press table-view handler
     UILongPressGestureRecognizer *longpressScanSetting = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longpressScanSetting:)];
     
-    longpressScanSetting.minimumPressDuration = 2.0;
+    longpressScanSetting.minimumPressDuration = 1.0;
     longpressScanSetting.delegate = self;
     
     [self.tableView addGestureRecognizer:longpressScanSetting];
