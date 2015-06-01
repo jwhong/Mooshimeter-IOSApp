@@ -64,7 +64,11 @@ const CGFloat kArrowSize = 12.f;
     UIView *touched = [[touches anyObject] view];
     if (touched == self) {        
         //[self.nextResponder touchesBegan:touches withEvent:event];
-        [self.menuView dismissMenu:YES];
+        // [self.menuView dismissMenu:YES];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.menuView dismissMenu:YES];
+        });
     }
 }
 

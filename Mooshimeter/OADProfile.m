@@ -9,7 +9,7 @@
 
 #import "OADProfile.h"
 #import "BLEUtility.h"
-
+#import "ReachabilityManager.h"
 
 @implementation OADProfile
 
@@ -19,21 +19,48 @@
         self.canceled = FALSE;
         self.inProgramming = FALSE;
         self.start = YES;
-        NSString *stringURL = @"https://moosh.im/s/f/mooshimeter-firmware-latest.bin";
-        NSURL  *url = [NSURL URLWithString:stringURL];
-        self.imageData = [NSData dataWithContentsOfURL:url];
-        NSLog(@"Loaded firmware \"%@\"of size : %d",filename,(int)self.imageData.length);
-        if(self.imageData.length==0) {
-            // We failed to load the firmware.  Should we do something?
-            self->imageHeader.build_time=0;
-        } else {
-            [self.imageData getBytes:&self->imageHeader length:sizeof(img_hdr_t)];
+        
+        // By Jianying
+        self.download_imagePath = filename;
+        self.image_downloaded = false;
+        
+        // Add complete block
+        [ReachabilityManager sharedInstance];
+        
+        if( [[ReachabilityManager sharedInstance] connectedToInternet] == true ) {
+            [self downloadImage];
+        }
+        else {
+            [[ReachabilityManager sharedInstance] addConnectionStatusChangeHandler:^(BOOL connectedToInternet) {
+                
+                [self downloadImage];
+            } withIdentifier:@"imageDownloaded"];
         }
     }
     return self;
 }
 
+-(void) downloadImage {
+    
+    NSString *stringURL = @"https://moosh.im/s/f/mooshimeter-firmware-latest.bin";
+    NSURL  *url = [NSURL URLWithString:stringURL];
+    self.imageData = [NSData dataWithContentsOfURL:url];
+    NSLog(@"Loaded firmware \"%@\"of size : %d",self.download_imagePath,(int)self.imageData.length);
+    if(self.imageData.length==0) {
+        // We failed to load the firmware.  Should we do something?
+        self->imageHeader.build_time=0;
+    } else {
+        [self.imageData getBytes:&self->imageHeader length:sizeof(img_hdr_t)];
+    }
+    
+    self.image_downloaded = true;
+    
+    // Once download become success, delete handler
+    [[ReachabilityManager sharedInstance] removeConnectionStatusChangeHandlerWithIdentifier:@"imageDownloaded"];
+}
+
 -(void) startUpload {
+    
     NSLog(@"Configuring OAD Profile");
     self.start = YES;
     LGCharacteristic* image_notify = [g_meter getLGChar:OAD_IMAGE_NOTIFY];
@@ -73,6 +100,13 @@
 }
 
 -(void) uploadImage {
+    
+    // By Jianying Shi
+    // If image is not downloaded yet, skip upload Image to device
+    if(self.image_downloaded == false) {
+        return;
+    }
+    
     self.inProgramming = YES;
     self.canceled = NO;
     

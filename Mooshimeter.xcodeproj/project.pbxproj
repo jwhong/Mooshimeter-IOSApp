@@ -48,6 +48,8 @@
 		4AF4D8DD1A2BCD2600622F58 /* MeterSettingsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AF4D8DC1A2BCD2600622F58 /* MeterSettingsView.m */; };
 		842D9F641AE423B300ABBB89 /* LDProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 842D9F631AE423B200ABBB89 /* LDProgressView.m */; };
 		842D9F671AE424ED00ABBB89 /* UIColor+RGBValues.m in Sources */ = {isa = PBXBuildFile; fileRef = 842D9F661AE424ED00ABBB89 /* UIColor+RGBValues.m */; };
+		8457CBB11B1CF64200572CFE /* ReachabilityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8457CBB01B1CF64200572CFE /* ReachabilityManager.m */; };
+		8457CBB51B1CF69F00572CFE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 8457CBB41B1CF69F00572CFE /* Reachability.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		846403F21AF5603A002C78FF /* _MPWButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 846403E71AF5603A002C78FF /* _MPWButton.m */; };
 		846403F31AF5603A002C78FF /* MPBarsGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 846403E91AF5603A002C78FF /* MPBarsGraphView.m */; };
 		846403F41AF5603A002C78FF /* MPGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 846403EB1AF5603A002C78FF /* MPGraphView.m */; };
@@ -222,6 +224,10 @@
 		842D9F631AE423B200ABBB89 /* LDProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDProgressView.m; sourceTree = "<group>"; };
 		842D9F651AE424ED00ABBB89 /* UIColor+RGBValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+RGBValues.h"; sourceTree = "<group>"; };
 		842D9F661AE424ED00ABBB89 /* UIColor+RGBValues.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+RGBValues.m"; sourceTree = "<group>"; };
+		8457CBAF1B1CF64200572CFE /* ReachabilityManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReachabilityManager.h; path = Mooshimeter/ReachabilityManager.h; sourceTree = "<group>"; };
+		8457CBB01B1CF64200572CFE /* ReachabilityManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ReachabilityManager.m; path = Mooshimeter/ReachabilityManager.m; sourceTree = "<group>"; };
+		8457CBB31B1CF69F00572CFE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		8457CBB41B1CF69F00572CFE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		846403E61AF5603A002C78FF /* _MPWButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _MPWButton.h; sourceTree = "<group>"; };
 		846403E71AF5603A002C78FF /* _MPWButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = _MPWButton.m; sourceTree = "<group>"; };
 		846403E81AF5603A002C78FF /* MPBarsGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPBarsGraphView.h; sourceTree = "<group>"; };
@@ -542,6 +548,8 @@
 				4ABE54191A080A9000277456 /* OADProfile.m */,
 				4ABE541C1A080A9000277456 /* OADProgressViewController.h */,
 				4ABE541D1A080A9000277456 /* OADProgressViewController.m */,
+				8457CBAF1B1CF64200572CFE /* ReachabilityManager.h */,
+				8457CBB01B1CF64200572CFE /* ReachabilityManager.m */,
 			);
 			name = OAD;
 			sourceTree = "<group>";
@@ -565,6 +573,16 @@
 			);
 			name = LDProgressView;
 			path = Mooshimeter/Vendor/LDProgressView;
+			sourceTree = SOURCE_ROOT;
+		};
+		8457CBB21B1CF69F00572CFE /* Reachability */ = {
+			isa = PBXGroup;
+			children = (
+				8457CBB31B1CF69F00572CFE /* Reachability.h */,
+				8457CBB41B1CF69F00572CFE /* Reachability.m */,
+			);
+			name = Reachability;
+			path = Mooshimeter/Vendor/Reachability;
 			sourceTree = SOURCE_ROOT;
 		};
 		846403E51AF5603A002C78FF /* MPPlot */ = {
@@ -601,6 +619,7 @@
 		847A13941AE3B27800E36E17 /* Vendor */ = {
 			isa = PBXGroup;
 			children = (
+				8457CBB21B1CF69F00572CFE /* Reachability */,
 				846403E51AF5603A002C78FF /* MPPlot */,
 				847121911AE61AC400035BB2 /* SVProgressHUD */,
 				842D9F611AE423B200ABBB89 /* LDProgressView */,
@@ -763,6 +782,7 @@
 				847A13A21AE3B94900E36E17 /* UIImage+ImageEffects.m in Sources */,
 				4ACF8AE11A0C918B00EC402B /* SmartNavigationController.m in Sources */,
 				846403F41AF5603A002C78FF /* MPGraphView.m in Sources */,
+				8457CBB11B1CF64200572CFE /* ReachabilityManager.m in Sources */,
 				4AF4D8DD1A2BCD2600622F58 /* MeterSettingsView.m in Sources */,
 				0C63853D17D694DC00D3FB31 /* AppDelegate.m in Sources */,
 				846403F61AF5603A002C78FF /* UIBezierPath+curved.m in Sources */,
@@ -772,6 +792,7 @@
 				4AA9EA2F1A12B54E0031C12B /* LGPeripheral.m in Sources */,
 				846403F71AF5603A002C78FF /* UIView+Frame.m in Sources */,
 				4AA9EA2E1A12B54E0031C12B /* LGCharacteristic.m in Sources */,
+				8457CBB51B1CF69F00572CFE /* Reachability.m in Sources */,
 				0C63854F17D694DC00D3FB31 /* MeterViewController.m in Sources */,
 				4AA9EA311A12B54E0031C12B /* LGUtils.m in Sources */,
 				0C78962417D7E56B00D1439E /* BLEUtility.m in Sources */,
@@ -904,6 +925,7 @@
 				GCC_PREFIX_HEADER = "Mooshimeter/Mooshimeter-Prefix.pch";
 				INFOPLIST_FILE = "Mooshimeter/Mooshimeter-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
@@ -918,6 +940,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "0b2a1bee-e707-40a3-b180-a4b90b179733";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -936,6 +959,7 @@
 				GCC_PREFIX_HEADER = "Mooshimeter/Mooshimeter-Prefix.pch";
 				INFOPLIST_FILE = "Mooshimeter/Mooshimeter-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",

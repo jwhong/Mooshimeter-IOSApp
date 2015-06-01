@@ -25,6 +25,10 @@ typedef void (^FirmwareUpdateFinishCallback)(NSError *error);
 
 @property (strong,nonatomic) NSData *imageData;
 
+// Added by Jianying Shi
+@property BOOL image_downloaded;
+@property NSString* download_imagePath;
+
 @property int nBlocks;
 @property int nBytes;
 @property int iBlocks;

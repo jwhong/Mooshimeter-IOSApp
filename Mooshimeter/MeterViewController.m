@@ -17,8 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***************************/
 
 #import "MeterViewController.h"
-
 #import "Vendor/KxMenu/KxMenu.h"
+
+#import "MooshimeterDeviceSimulator.h"
 
 dispatch_semaphore_t tmp_sem;
 
@@ -96,7 +97,12 @@ dispatch_semaphore_t tmp_sem;
 - (void) backToScanView : (id) sender
 {
     [g_meter disconnect:nil];
-    // [self.navigationController popViewControllerAnimated:YES];
+    
+    // Add exception for Simulator
+    // By Jianying Shi
+    if ([g_meter isKindOfClass:[MooshimeterDeviceSimulator class]] == true) {
+       [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 
 #pragma mark - View lifey cycle
