@@ -17,6 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***************************/
 
 #import "AppDelegate.h"
+#import "Vendor/SVProgressHUD/SVProgressHUD.h"
+
+#define SHOW_WAIT_DIALOG(MESSAGE)      [SVProgressHUD showWithStatus:MESSAGE maskType:SVProgressHUDMaskTypeClear]
 
 @implementation AppDelegate
 
@@ -64,8 +67,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     b = [UIButton buttonWithType:UIButtonTypeSystem];
     b.userInteractionEnabled = YES;
     [b addTarget:self action:@selector(settings_button_press) forControlEvents:UIControlEventTouchUpInside];
+    
+#if 1 // Commented if needs classic button
     [b.titleLabel setFont:[UIFont systemFontOfSize:24]];
     [b setTitle:@"\u2699" forState:UIControlStateNormal];
+#else
+    [b setFrame:CGRectMake(0, 0, 44, 30)];
+    [b setImage:[UIImage imageNamed:@"common_setting"] forState:UIControlStateNormal];
+#endif
+    
     [b setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [[b layer] setBorderWidth:2];
     [[b layer] setBorderColor:[UIColor darkGrayColor].CGColor];
@@ -80,6 +90,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     self.oad_profile.navCtrl = self.nav;
     
     [self.window setRootViewController:self.nav];
+    
+    // By Jianying Shi.
+    // Install Key Window
+    [self.window makeKeyAndVisible];
+    self.mlastConnectedUDID = nil;
+    
     return YES;
 }
 							
@@ -87,12 +103,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+    
+    // By Jianying Shi
+    // 05/08/2015
+    if( g_meter ) // It means, current mooshim device is connected
+    {
+        // Save current peripheral UUID to dictionary
+        self.mlastConnectedUDID = g_meter.p.UUIDString;
+        
+        // Trying to disconnect.
+        [g_meter disconnect:nil];
+    }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -103,6 +130,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    
+    // By Jianying Shi
+    // 05/08/2015
+    if( self.mlastConnectedUDID != nil && self.mlastConnectedUDID.length > 0 ) // Previously background disconnect
+    {
+        // Refresh Device List &&
+        // Display Please wait dialg
+        [SVProgressHUD showWithStatus:@"Restoring connection state, Please wait for a second."];
+        
+        [self handleScanViewRefreshRequest];
+    }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -135,12 +173,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     NSArray* services = [NSArray arrayWithObjects:[BLEUtility expandToMooshimUUID:METER_SERVICE_UUID], [BLEUtility expandToMooshimUUID:OAD_SERVICE_UUID], [CBUUID UUIDWithData:[NSData dataWithBytes:&tmp length:2]], nil];
     NSLog(@"Refresh requested");
     
-    [self.scan_vc.refreshControl beginRefreshing];
-    
     NSTimer* refresh_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self.scan_vc selector:@selector(reloadData) userInfo:nil repeats:YES];
-    
-    //self.scan_vc.title = @"Scan in progress...";
-    self.nav.navigationItem.title = @"Scan in progress...";
     
     [c scanForPeripheralsByInterval:5
         services:services
@@ -148,21 +181,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         completion:^(NSArray *peripherals) {
             NSLog(@"Found: %d", (int)peripherals.count);
             [refresh_timer invalidate];
-            [self.scan_vc.refreshControl endRefreshing];
             [self.scan_vc reloadData];
-            self.nav.navigationItem.title = @"Pull down to scan";
+            // By Jianying Shi
+            // Auto-Connect
+            [self.scan_vc performAutoConnect];
     }];
 }
 
 #pragma mark ScanViewDelegate
 
 -(void)handleScanViewRefreshRequest {
+    
+    // By Jianying Shi.
+    // Check if application is in background, no need to check
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    if( state == UIApplicationStateBackground || state == UIApplicationStateInactive )
+    {
+        //Do checking here.
+        NSLog(@"App is background mode = %d", state);
+        return;
+    }
+    
     [self scanForMeters];
 }
 
 -(void)handleScanViewSelect:(LGPeripheral*)p {
+    
     switch( p.cbPeripheral.state ) {
         case CBPeripheralStateConnected:{
+            NSLog(@"Already connected, igonre connection request & disconnecting...");
             // We selected one that's already connected, disconnect
             [p disconnectWithCompletion:^(NSError *error) {
                 [self meterDisconnected];
@@ -186,8 +233,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             }
             
             [g_meter connect];
-            [self.scan_vc reloadData];
-            break;}
+            
+            // Commented by Jianying Shi
+            // [self.scan_vc reloadData];
+            break;
+        }
     }
 }
 
@@ -201,6 +251,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         NSNumber *value = [NSNumber numberWithInt:new_o];
         [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
         [self.nav pushViewController:self.graph_vc animated:YES];
+    }
+}
+-(void)updateFirmwareIfNeeded
+{
+    if ( g_meter == nil )
+        return;
+    
+    if( g_meter->oad_mode ) {
+        // We connected to a meter in OAD mode as requested previously.  Update firmware.
+        NSLog(@"Connected in OAD mode");
+        if( YES || [g_meter getAdvertisedBuildTime] != self.oad_profile->imageHeader.build_time ) {
+            NSLog(@"Starting upload");
+            
+            // Add by Jianying Shi
+            // Display updating state.
+            [SVProgressHUD showWithStatus:@"Updating firmware..." maskType : SVProgressHUDMaskTypeClear];
+            [self.oad_profile setCompletionBlock:^(NSError* error) {
+                [SVProgressHUD dismiss];
+            }];
+            
+            [self.oad_profile startUpload];
+        } else {
+            NSLog(@"We connected to an up-to-date meter in OAD mode.  Disconnecting.");
+            [g_meter.p disconnectWithCompletion:nil];
+        }
+    }
+    else if( [g_meter getAdvertisedBuildTime] < self.oad_profile->imageHeader.build_time ) {
+        // Require a firmware update!
+        NSLog(@"FIRMWARE UPDATE REQUIRED.");
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Firmware Update" message:@"This meter requires a firmware update.  This will take about a minute.  Upgrade now?" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Upgrade Now", nil];
+        [alert show];
     }
 }
 
@@ -220,8 +301,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma mark MooshimeterDeviceDelegate
 
 -(void)finishedMeterSetup {
+    
+    // Delete SVProgressHUD, if needed.
+    [SVProgressHUD dismiss];
+    
     NSLog(@"Finished meter setup");
-    [self.scan_vc reloadData];
+    
+    // ??? Commented By Jianying Shi
+    // [self.scan_vc reloadData];
+    
     if( g_meter->oad_mode ) {
         // We connected to a meter in OAD mode as requested previously.  Update firmware.
         NSLog(@"Connected in OAD mode");
@@ -262,8 +350,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     [self.bat_label setText:@""];
     [self.rssi_label setText:@""];
     [NSTimer cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateRSSI) object:nil];
+    
+    // By Jianying Shi
+    // Setup Portrait Orientation
+    NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationPortrait];
+    [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
+
+    // Check if current view controller is scan view controller
     [self.nav popToViewController:self.scan_vc animated:YES];
-    [self.scan_vc reloadData];
+    
+    // No need??? Jianying Shi
+    // [self.scan_vc reloadData];
+    
     g_meter = nil;
 }
 
@@ -308,6 +406,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             }];
         }];
     }
+}
+
+#pragma mark TopViewController Judge Part
+- (UIViewController*) topViewController {
+    
+    return [self topViewController : self.window.rootViewController];
+}
+
+- (UIViewController*) topViewController : (UIViewController*) rootViewController {
+    
+    if( rootViewController.presentedViewController == nil ) {
+        return rootViewController;
+    }
+    else if( [rootViewController.presentedViewController isKindOfClass:[UINavigationController class]] )
+    {
+        UINavigationController* navController = (UINavigationController*) rootViewController.presentedViewController;
+        UIViewController* lastVC = (UIViewController*) navController.viewControllers.lastObject;
+        return [self topViewController:lastVC];
+    }
+    
+    return (UIViewController*) rootViewController.presentedViewController;
 }
 
 @end

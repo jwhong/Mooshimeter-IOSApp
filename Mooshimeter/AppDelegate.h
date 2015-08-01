@@ -52,7 +52,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 @property (strong,nonatomic) UILabel* bat_label;
 @property (strong,nonatomic) UILabel* rssi_label;
-@property (strong, nonatomic) UIButton* settings_button;
+@property (strong,nonatomic) UIButton* settings_button;
+
+// By Jianying
+@property (strong,nonatomic) NSString* mlastConnectedUDID;
 
 -(UINavigationController*)getNav;
 -(void)scanForMeters;

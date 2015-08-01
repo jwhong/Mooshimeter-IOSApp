@@ -17,8 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ***************************/
 
 #import "MeterViewController.h"
+#import "Vendor/KxMenu/KxMenu.h"
+
+#import "MooshimeterDeviceSimulator.h"
 
 dispatch_semaphore_t tmp_sem;
+
+#define kContextMenu_Tag    2000
+
+@interface MeterViewController () {
+    KxMenu* settingsMenu;
+}
+@end
 
 @implementation MeterViewController
 
@@ -77,8 +87,25 @@ dispatch_semaphore_t tmp_sem;
     
     [v addSubview:sv];
     [self.view addSubview:v];
+    
+    // By Jianying Shi
+    // Trying to customized back button
+    UIBarButtonItem* back_item = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(backToScanView:)];
+    self.navigationItem.leftBarButtonItem = back_item;
 }
 
+- (void) backToScanView : (id) sender
+{
+    [g_meter disconnect:nil];
+    
+    // Add exception for Simulator
+    // By Jianying Shi
+    if ([g_meter isKindOfClass:[MooshimeterDeviceSimulator class]] == true) {
+       [self.navigationController popViewControllerAnimated:YES];
+    }
+}
+
+#pragma mark - View lifey cycle
 -(void) viewWillDisappear:(BOOL)animated {
     [self pause];
 }
